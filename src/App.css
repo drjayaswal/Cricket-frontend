@@ -1,0 +1,43 @@
+@layer utilities {
+    /* Blue light reveals the text */
+    @keyframes revealText {
+      0% {
+        background-position: -200% 0;
+        opacity: 0;
+      }
+      50% {
+        opacity: 0;
+      }
+      100% {
+        background-position: 200% 0;
+        opacity: 1;
+      }
+    }
+  
+    .animate-reveal-text {
+      background-image: linear-gradient(
+        -45deg,
+        transparent 0%,
+        #007bff 50%,
+        transparent 0
+      );
+      background-size: 200% 200%;
+      animation: revealText 2s ease-in-out forwards;
+    }
+  
+    /* White dots appear smoothly after the blue light */
+    @keyframes dotFade {
+      0% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      100% {
+        opacity: 100;
+        transform: scale(1);
+      }
+    }
+  
+    .animate-dot-fade {
+      animation: dotFade 0.8s ease-in-out forwards;
+    }
+  }
