@@ -20,8 +20,13 @@ export default function Signup() {
     }
 
     if (!phoneRegex.test(phoneNumber)) {
-      setError("Invalid phone number format. Use E.164 format (+911234567890)");
+      setError("Invalid phone number format. ");
       return;
+    }if(phoneNumber.length !== 13){
+      setError("Mobile number length should be 10 characters");
+      return;
+    }else{
+      navigate("/verifyOtp")
     }
 
     
