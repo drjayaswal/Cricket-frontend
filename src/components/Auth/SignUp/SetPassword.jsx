@@ -7,9 +7,9 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 
 
 const SetPassword = () => {
-  const { SignupPhone } = useContext(UserContext);
+  const { SignupPhone,setPasswordHandler,confirmPassword,setConfirmPassword } = useContext(UserContext);
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState("");
@@ -40,11 +40,12 @@ const SetPassword = () => {
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
       return;
+    }else{
+      setError("");
+      setPasswordHandler(SignupPhone,confirmPassword)
+      navigate("/home")
+
     }
-  
-    setError("");
-    navigate("/home")
-  
 
   };
 

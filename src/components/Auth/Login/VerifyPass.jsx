@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import GoogleIcon from "../../GoogleIcon/GoogleIcon";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { UserContext } from "../../../Context/UserContext";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -8,9 +8,32 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 const VerifyPass = () => {
   const navigate = useNavigate();
 
-  const { LoginPhone } = useContext(UserContext);
+  const { LoginPhone,login } = useContext(UserContext);
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false);
+  const [error,setError] = useState("")
+
+  useEffect(()=>{
+    if(!LoginPhone){
+      navigate("/login")
+    }
+  })
+  const handleLogin = async (e) => {
+    e.preventDefault();
+
+    if (!password) {
+      setError("Please enter password");
+      return;
+    }
+
+    const response = await login(LoginPhone, password);
+    
+    if (response.success) {
+      navigate("/home"); // Redirect to dashboard after successful login
+    } else {
+      setError(response.message);
+    }
+  };
 
   return (
     <>
@@ -57,6 +80,7 @@ const VerifyPass = () => {
                 >
                   {showPassword ? <VisibilityIcon /> : <VisibilityOffIcon/>}
                 </button>
+                {error && <p className="text-red-500 text-sm">{error}</p>}
                 <div className="text-white py-2">
                   <p className="text-xs text-gray-500">
                     Forgot your password?{" "}
@@ -72,7 +96,7 @@ const VerifyPass = () => {
               </div>
             <button
               className="w-full bg-[#1B8DFF] font-[Teko] tracking-wider py-3 text-2xl cursor-pointer rounded-lg text-white font-bold hover:bg-blue-600"
-              // onClick={handleNext} //navigate to home page
+              onClick={handleLogin} 
             >
               Continue
             </button>

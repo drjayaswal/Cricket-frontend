@@ -6,25 +6,27 @@ import { UserContext } from "../../../Context/UserContext";
 const VerifyOTP = () => {
   const navigate = useNavigate();
 
-  const { SignupPhone, OTP, SetOTP } = useContext(UserContext);
+  const { SignupPhone, OTP, SetOTP, verifyOtp } = useContext(UserContext);
 
-  // const handleNext = () => {
-  //   if (OTP) {
-  //     navigate("/setpassword");
-  //   } else {
-  //     alert("Please enter OTP");
-  //     return;
-  //   }
-  // };
   const handleVerifyOTP = async () => {
-    if (OTP) {
-          navigate("/setpassword");
-        } else {
-          alert("Please enter OTP");
-          return;
-        }
+    if (!OTP) {
+      alert("Please enter OTP");
+      return;
+    }
+  
+    try {
+      const response = await verifyOtp(SignupPhone, OTP);
+  
+      if (response?.message === "OTP verified successfully") {
+        navigate("/setpassword"); 
+      } else {
+        alert(response?.error || "OTP verification failed. Please try again.");
+      }
+    } catch (error) {
+      console.error("OTP Verification Error:", error);
+      alert("Something went wrong. Please try again.");
+    }
   };
-
 
   useEffect(() => {
     if (!SignupPhone) {
@@ -44,9 +46,7 @@ const VerifyOTP = () => {
             <p className="text-center font-[Teko] tracking-wider text-2xl font-bold text-blue-400">
               Galaxy
             </p>
-            <p
-              className="text-center text-4xl font-bold text-white font-[Teko] tracking-wider"
-            >
+            <p className="text-center text-4xl font-bold text-white font-[Teko] tracking-wider">
               Verify Your OTP
             </p>
           </div>

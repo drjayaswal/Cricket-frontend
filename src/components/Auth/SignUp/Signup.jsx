@@ -4,32 +4,56 @@ import { useNavigate } from "react-router-dom";
 import GoogleIcon from "../../GoogleIcon/GoogleIcon";
 
 export default function Signup() {
-  const { SignupPhone, setSignupPhone } = useContext(UserContext);
+  const { SignupPhone, setSignupPhone, sendOtp } = useContext(UserContext);
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
 
-  const handleNext = (e) => {
+  const handleNext = async (e) => {
     e.preventDefault();
 
     let phoneNumber = SignupPhone.trim();
-    const phoneRegex = /^\+?[1-9]\d{1,14}$/;
 
-    if (!phoneNumber.startsWith("+")) {
-      phoneNumber = `+91${phoneNumber}`; // Default to India (+91), change as needed
+    // Remove spaces, dashes, or non-numeric characters
+    phoneNumber = phoneNumber.replace(/\D/g, "");
+
+    // Ensure it starts with +91
+    if (!phoneNumber.startsWith("91")) {
+      phoneNumber = `91${phoneNumber}`;
     }
+
+    phoneNumber = `+${phoneNumber}`;
+
+    const phoneRegex = /^\+91[6-9]\d{9}$/;
 
     if (!phoneRegex.test(phoneNumber)) {
-      setError("Invalid phone number format. ");
+      setError(
+        "Invalid phone number. Must be a valid Indian number (+91XXXXXXXXXX)."
+      );
       return;
-    }if(phoneNumber.length !== 13){
-      setError("Mobile number length should be 10 characters");
-      return;
-    }else{
-      navigate("/verifyOtp")
     }
 
-    
+    setSignupPhone(phoneNumber);
+
+    setError("");
+
+    try {
+      const response = await sendOtp(phoneNumber);
+
+      if (response?.message === "OTP sent successfully") {
+        alert(response?.message);
+        navigate("/verifyOtp");
+      } else if (response?.message === "User already exist") {
+        alert(
+          "User already exist. Please login with your registered phone number."
+        );
+        navigate("/login");
+      } else {
+        alert(response?.error || "Failed to send OTP. Please try again.");
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -112,4 +136,3 @@ export default function Signup() {
     </>
   );
 }
-

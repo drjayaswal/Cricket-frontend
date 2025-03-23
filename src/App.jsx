@@ -9,6 +9,7 @@ import VerifyOTP from "./components/Auth/SignUp/VerifyOTP";
 import Home from "./components/Dashboard/Home";
 import Login from "./components/Auth/Login/Login";
 import VerifyPass from "./components/Auth/Login/VerifyPass";
+import PrivateRoute from "./components/PrivateRoute/PrivateRoute";
 // import  UserContext  from "./Context/Context";
 
 function App() {
@@ -26,7 +27,7 @@ function App() {
             <Route path="/setpassword" element={<SetPassword />} />
             <Route path="/login" element={<Login />} />
             <Route path="/verifypass" element={<VerifyPass />} />
-            <Route path="/home" element={<Home />} />
+            <Route path="/home" element={<PrivateRoute><Home /></PrivateRoute>} />
           </Routes>
         </Router>
        )} 
