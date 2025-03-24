@@ -2,9 +2,10 @@ import React, { useContext, useState } from "react";
 import GoogleIcon from "../../GoogleIcon/GoogleIcon";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../../../Context/UserContext";
+import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 
 const Login = () => {
-  const { LoginPhone, setLoginPhone } = useContext(UserContext);
+  const { LoginPhone, setLoginPhone,handleGoogleSuccess } = useContext(UserContext);
 
   const navigate = useNavigate();
   const [error, setError] = useState("");
@@ -31,7 +32,7 @@ const Login = () => {
       );
       return;
     } else {
-      setLoginPhone(phoneNumber)
+      setLoginPhone(phoneNumber);
       navigate("/verifypass");
     }
   };
@@ -89,10 +90,18 @@ const Login = () => {
 
           {/* Alternative login methods */}
           <div className="space-y-6">
-            <button className="w-full flex justify-start cursor-pointer border-gray-700 p-2 rounded-lg text-xl items-center outline-2 outline-gray-500 text-gray-400">
+            {/* <button className="w-full flex justify-start cursor-pointer border-gray-700 p-2 rounded-lg text-xl items-center outline-2 outline-gray-500 text-gray-400">
               <GoogleIcon className="mr-2 h-5 w-5" />
               <span>Continue with Google</span>
-            </button>
+            </button> */}
+            <GoogleOAuthProvider clientId="705501120220-17knjq3r5ci08tr7guusfpfa4ta0pblh.apps.googleusercontent.com">
+              <button className="w-full flex justify-start cursor-pointer border-gray-700 p-2 rounded-lg text-xl items-center outline-2 outline-gray-500 text-gray-400">
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={() => alert("Google Login Failed")}
+                />
+              </button>
+            </GoogleOAuthProvider>
           </div>
 
           {/* Footer */}

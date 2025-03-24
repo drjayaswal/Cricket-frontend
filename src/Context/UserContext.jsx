@@ -1,5 +1,6 @@
 import { createContext, useState } from "react";
 import axios from "axios";
+import { Navigate } from "react-router-dom";
 
 // Create Context
 export const UserContext = createContext();
@@ -35,7 +36,7 @@ export const UserProvider = ({ children }) => {
 
   const setPasswordHandler = async (mobile,password) => {
     await axios.post("http://localhost:5000/auth/set-password", { mobile, password });
-    alert("Signup complete! Welcome to Dashboard.");
+    alert("Signup complete! Now you can login");
   };
 
 
@@ -53,13 +54,35 @@ export const UserProvider = ({ children }) => {
     }
   };
 
+  const handleGoogleSuccess = async(credentialResponse) => {
+    
+    console.log(credentialResponse);
+
+    const tokenId = credentialResponse.credential; 
+
+    if (!tokenId) {
+      alert("Google authentication failed!");
+      return;
+    }
+
+    const response = await axios.post("http://localhost:5000/auth/google-login", { tokenId });
+    if (response.data.token) {
+      localStorage.setItem("token", response.data.token);
+      alert("Login succesfull! Welcome to Dashboard.");
+      // Navigate("/home")
+      window.location.href = "/home";
+      return { success: true, message: response.data.message };
+    }
+    
+  }
+
   const logout = () => {
     localStorage.removeItem("token"); // Remove token from storage
   };
   
 
   return (
-    <UserContext.Provider value={{  SignupPhone, setSignupPhone ,OTP,SetOTP,LoginPhone,setLoginPhone,confirmPassword,setConfirmPassword,sendOtp,verifyOtp,setPasswordHandler,login,logout}}>
+    <UserContext.Provider value={{  SignupPhone, setSignupPhone ,OTP,SetOTP,LoginPhone,setLoginPhone,confirmPassword,setConfirmPassword,sendOtp,verifyOtp,setPasswordHandler,login,logout,handleGoogleSuccess}}>
       {children}
     </UserContext.Provider>
   );
