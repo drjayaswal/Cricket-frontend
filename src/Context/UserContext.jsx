@@ -13,6 +13,7 @@ export const UserProvider = ({ children }) => {
   const [SignupPhone, setSignupPhone] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [LoginPhone, setLoginPhone] = useState("")
+  const [ForgetPhone,setForgetPhone] = useState("")
   const [OTP, SetOTP] = useState("")
 
   // signUp content ends here
@@ -23,6 +24,22 @@ export const UserProvider = ({ children }) => {
     return response.data
 
   };
+
+  const sendForgotPasswordOtp = async (phonenumber) => {
+    const response = await axios.post("http://localhost:5000/auth/forgot-password/sendOtp", { mobile:phonenumber });
+    return response.data
+  }
+
+  const Updatepassword = async(mobile,oldPassword,newPassword) =>{
+    try {
+      const response = await axios.post("http://localhost:5000/auth/change-password", { mobile, oldPassword, newPassword });
+      return response.data; 
+    } catch (error) {
+      console.error("Password Update Error:", error);
+      return { error: error.response?.data?.message || "Password update failed" };
+    }
+  }
+
 
   const verifyOtp = async (mobile, otp) => {
     try {
@@ -82,7 +99,7 @@ export const UserProvider = ({ children }) => {
   
 
   return (
-    <UserContext.Provider value={{  SignupPhone, setSignupPhone ,OTP,SetOTP,LoginPhone,setLoginPhone,confirmPassword,setConfirmPassword,sendOtp,verifyOtp,setPasswordHandler,login,logout,handleGoogleSuccess}}>
+    <UserContext.Provider value={{  SignupPhone, setSignupPhone ,OTP,SetOTP,LoginPhone,setLoginPhone,confirmPassword,setConfirmPassword,sendOtp,verifyOtp,setPasswordHandler,login,logout,handleGoogleSuccess,ForgetPhone,setForgetPhone,sendForgotPasswordOtp,Updatepassword}}>
       {children}
     </UserContext.Provider>
   );

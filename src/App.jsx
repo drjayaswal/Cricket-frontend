@@ -11,6 +11,9 @@ import Login from "./components/Auth/Login/Login";
 import VerifyPass from "./components/Auth/Login/VerifyPass";
 import PrivateRoute from "./components/PrivateRoute/PrivateRoute";
 import {gapi} from 'gapi-script'
+import ForgetPass from "./components/Auth/Forgetpass/ForgetPass";
+import ForgetVerifyOtp from "./components/Auth/Forgetpass/ForgetVerifyOtp";
+import ChangePass from "./components/Auth/Forgetpass/ChangePass";
 // import  UserContext  from "./Context/Context";
 
 function App() {
@@ -40,6 +43,9 @@ function App() {
             <Route path="/setpassword" element={<SetPassword />} />
             <Route path="/login" element={<Login />} />
             <Route path="/verifypass" element={<VerifyPass />} />
+            <Route path="/forgot-password" element={<ForgetPass/>}/> 
+            <Route path="/forgot-password/verify-password" element={<ForgetVerifyOtp/>}/> 
+            <Route path="/forgot-password/changePass" element={<ChangePass/>} />
             <Route path="/home" element={<PrivateRoute><Home /></PrivateRoute>} />
           </Routes>
         </Router>

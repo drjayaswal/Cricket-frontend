@@ -4,18 +4,30 @@ const Preloader = ({ onComplete }) => {
   const [showDots, setShowDots] = useState(false);
   const [textVisible, setTextVisible] = useState(false);
 
+  // useEffect(() => {
+  //   setTimeout(() => {
+  //     setTextVisible(true); 
+  //   }, 3000); 
+
+  //   setTimeout(() => {
+  //     setShowDots(true);
+  //   }, 3500);
+
+  //   setTimeout(() => {
+  //     onComplete();
+  //   }, 4000);
   useEffect(() => {
     setTimeout(() => {
       setTextVisible(true); 
-    }, 3000); 
+    }, 0); 
 
     setTimeout(() => {
       setShowDots(true);
-    }, 3500);
+    }, 0);
 
     setTimeout(() => {
       onComplete();
-    }, 4000);
+    }, 0);
   }, [onComplete]);
 
   const dotPositions = [
