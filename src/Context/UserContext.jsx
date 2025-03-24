@@ -1,6 +1,5 @@
 import { createContext, useState } from "react";
 import axios from "axios";
-import { Navigate } from "react-router-dom";
 
 // Create Context
 export const UserContext = createContext();
@@ -8,6 +7,7 @@ export const UserContext = createContext();
 // Provider Component
 export const UserProvider = ({ children }) => {
 
+  const BACKEND_URL = "http://localhost:5000/auth"
   
   // SignUp content start from there
   const [SignupPhone, setSignupPhone] = useState("");
@@ -20,19 +20,19 @@ export const UserProvider = ({ children }) => {
   
 
   const sendOtp = async (phonenumber) => {
-    const response = await axios.post("http://localhost:5000/auth/send-otp", { mobile:phonenumber });
+    const response = await axios.post(`${BACKEND_URL}/send-otp`, { mobile:phonenumber });
     return response.data
 
   };
 
   const sendForgotPasswordOtp = async (phonenumber) => {
-    const response = await axios.post("http://localhost:5000/auth/forgot-password/sendOtp", { mobile:phonenumber });
+    const response = await axios.post(`${BACKEND_URL}/forgot-password/sendOtp`, { mobile:phonenumber });
     return response.data
   }
 
   const Updatepassword = async(mobile,oldPassword,newPassword) =>{
     try {
-      const response = await axios.post("http://localhost:5000/auth/change-password", { mobile, oldPassword, newPassword });
+      const response = await axios.post(`${BACKEND_URL}/change-password`, { mobile, oldPassword, newPassword });
       return response.data; 
     } catch (error) {
       console.error("Password Update Error:", error);
@@ -43,7 +43,7 @@ export const UserProvider = ({ children }) => {
 
   const verifyOtp = async (mobile, otp) => {
     try {
-      const response = await axios.post("http://localhost:5000/auth/verify-otp", { mobile, otp });
+      const response = await axios.post(`${BACKEND_URL}/verify-otp`, { mobile, otp });
       return response.data; 
     } catch (error) {
       console.error("OTP Verification Error:", error);
@@ -52,14 +52,14 @@ export const UserProvider = ({ children }) => {
   };
 
   const setPasswordHandler = async (mobile,password) => {
-    await axios.post("http://localhost:5000/auth/set-password", { mobile, password });
+    await axios.post(`${BACKEND_URL}/set-password`, { mobile, password });
     alert("Signup complete! Now you can login");
   };
 
 
   const login = async (mobile, password) => {
     try {
-      const response = await axios.post("http://localhost:5000/auth/login", { mobile, password });
+      const response = await axios.post(`${BACKEND_URL}/login`, { mobile, password });
 
       if (response.data.token) {
         localStorage.setItem("token", response.data.token);
@@ -82,7 +82,7 @@ export const UserProvider = ({ children }) => {
       return;
     }
 
-    const response = await axios.post("http://localhost:5000/auth/google-login", { tokenId });
+    const response = await axios.post(`${BACKEND_URL}/google-login`, { tokenId });
     if (response.data.token) {
       localStorage.setItem("token", response.data.token);
       alert("Login succesfull! Welcome to Dashboard.");

@@ -3,12 +3,13 @@ import { useGoogleLogin } from "@react-oauth/google";
 import GoogleIcon from "./GoogleIcon";
 
 const GoogleLoginButton = () => {
+  const BACKEND_URL = "http://localhost:5000/auth"
   const login = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       console.log("Google Token Response:", tokenResponse);
 
       const response = await axios.post(
-        "http://localhost:5000/auth/google-login",
+        `${BACKEND_URL}/google-login`,
         { tokenId: tokenResponse.credential }
       );
 
