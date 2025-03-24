@@ -1,6 +1,8 @@
 import React, { useContext } from 'react'
 import { UserContext } from '../../Context/UserContext'
 import { useNavigate } from 'react-router-dom'
+import Navbar from './Navbar/Navbar'
+import BettingInterface from './mini-components/BettingInterface'
 
 const Home = () => {
 
@@ -14,8 +16,9 @@ const Home = () => {
 
   return (
     <div>
-      <h1 className="text-white">Hello this is home page</h1>
-      <button onClick={handlelogout}>Logout</button>
+      <Navbar/>
+      <BettingInterface/>
+      <button onClick={handlelogout}>logout</button>
     </div>
   )
 }

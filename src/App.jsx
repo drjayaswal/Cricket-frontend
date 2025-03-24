@@ -1,4 +1,4 @@
-import {  useEffect, useState } from "react";
+import {useState } from "react";
 import {BrowserRouter as Router, Routes, Route} from "react-router-dom"
 import "./App.css";
 import Signup from "./components/Auth/SignUp/Signup";
@@ -10,7 +10,6 @@ import Home from "./components/Dashboard/Home";
 import Login from "./components/Auth/Login/Login";
 import VerifyPass from "./components/Auth/Login/VerifyPass";
 import PrivateRoute from "./components/PrivateRoute/PrivateRoute";
-import {gapi} from 'gapi-script'
 import ForgetPass from "./components/Auth/Forgetpass/ForgetPass";
 import ForgetVerifyOtp from "./components/Auth/Forgetpass/ForgetVerifyOtp";
 import ChangePass from "./components/Auth/Forgetpass/ChangePass";
@@ -19,17 +18,6 @@ import ChangePass from "./components/Auth/Forgetpass/ChangePass";
 function App() {
   const [loading, setLoading] = useState(true);
 
-  const initializeGapi = () => {
-    gapi.client.init({
-      clientId: "506207457326-a457gop4rg41d04n6cep7qd05ulfsvnm.apps.googleusercontent.com",
-      scope: "",
-    });
-  };
-  
-  useEffect(() =>{
-    // load and init google api scripts
-    gapi.load("client:auth2", initializeGapi);
-  })
 
   return (
     <UserProvider>
