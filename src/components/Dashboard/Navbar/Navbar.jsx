@@ -23,9 +23,9 @@ const Navbar = () => {
         <Link href="/" className="hover:text-blue-500 transition-colors">
           Home
         </Link>
-        <Link href="/live-matches" className="hover:text-blue-500 transition-colors">
+        <a href="/live-matches" className="hover:text-blue-500 transition-colors">
           Live Matches
-        </Link>
+        </a>
         <Link href="/mybets" className="hover:text-blue-500 transition-colors">
           MyBets
         </Link>

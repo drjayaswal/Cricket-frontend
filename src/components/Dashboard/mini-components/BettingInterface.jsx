@@ -1,10 +1,10 @@
-import { useState } from 'react'
+// import { useState } from 'react'
 import MatchTabs from './MatchTabs'
 import PlayerCard from './PlayerCard'
 import Teamcard from './Teamcard'
 const BettingInterface = () => {
 
-    const [username, setUsername] = useState("Username")
+    // const [username, setUsername] = useState("Username")
 
     // Sample data - you can replace this with your actual data fetching logic
     const teams = [
@@ -93,7 +93,8 @@ const BettingInterface = () => {
             LIVE
           </span>
         </div>
-        <h1 className="text-center text-2xl font-bold mt-6">Hey [{username}], Ready to Bet?</h1>
+        {/* <h1 className="text-center text-2xl font-bold mt-6">Hey [{username}], Ready to Bet?</h1> */}
+        <h1 className="text-center text-2xl font-bold mt-6">Hey Erfan, Ready to Bet?</h1>
       </div>
 
       <div className="grid grid-cols-2 gap-4 mb-6">

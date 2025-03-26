@@ -30,7 +30,7 @@ const VerifyOTP = () => {
 
   useEffect(() => {
     if (!SignupPhone) {
-      navigate("/");
+      navigate("/signup");
     }
   }, [SignupPhone, navigate]);
 

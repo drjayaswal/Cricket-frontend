@@ -15,7 +15,7 @@ const Teamcard = ({team}) => {
         <div className="text-xs text-gray-400">{team.percentage}</div>
       </div>
 
-      <div className="h-16 flex items-end justify-between">
+      <div className="h-16 md:h-32 flex items-end justify-between">
         {team.graphData.map((value, index) => (
           <div
             key={index}

@@ -43,7 +43,7 @@ const SetPassword = () => {
     }else{
       setError("");
       setPasswordHandler(SignupPhone,confirmPassword)
-      navigate("/home")
+      navigate("/")
 
     }
 

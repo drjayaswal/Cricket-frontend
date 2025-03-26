@@ -74,7 +74,7 @@ const Login = () => {
               <button
                 href="#"
                 className="text-blue-400 hover:underline cursor-pointer"
-                onClick={() => navigate("/")}
+                onClick={() => navigate("/signup")}
               >
                 SignUp
               </button>

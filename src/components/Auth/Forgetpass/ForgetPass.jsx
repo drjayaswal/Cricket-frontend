@@ -43,7 +43,7 @@ const ForgetPass = () => {
         navigate("/forgot-password/verify-password"); // Navigate to OTP verification page
       } else if (response?.message === "User not found") {
         alert("No account found with this phone number. Please register first.");
-        navigate("/"); 
+        navigate("/signup"); 
       } else {
         alert(response?.error || "Failed to send OTP. Please try again.");
       }

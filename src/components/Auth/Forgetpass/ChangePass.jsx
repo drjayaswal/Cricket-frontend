@@ -51,18 +51,14 @@ const ChangePass = () => {
 
   
     try {
-      const response = await Updatepassword(ForgetPhone,oldPassword,password)
-
-      console.log(response.message);
-      console.log("erfan");
-      
-      
+      const response = await Updatepassword(ForgetPhone,oldPassword,password)     
   
       if (response?.message === "Password changed successfully") {
         alert("Password changed successfully!");
-        navigate("/home");
+        navigate("/");
       } else if(response?.message === "User not found"){
-        alert("User not found");
+        alert("User not found Go Register first!!!");
+        navigate("/signup");
       }else if(response?.message === "Incorrect old password"){
         alert("Incorrect old password");
         

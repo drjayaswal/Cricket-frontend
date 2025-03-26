@@ -1,4 +1,4 @@
-import {useState } from "react";
+import {useEffect, useState } from "react";
 import {BrowserRouter as Router, Routes, Route} from "react-router-dom"
 import "./App.css";
 import Signup from "./components/Auth/SignUp/Signup";
@@ -13,11 +13,23 @@ import PrivateRoute from "./components/PrivateRoute/PrivateRoute";
 import ForgetPass from "./components/Auth/Forgetpass/ForgetPass";
 import ForgetVerifyOtp from "./components/Auth/Forgetpass/ForgetVerifyOtp";
 import ChangePass from "./components/Auth/Forgetpass/ChangePass";
-// import  UserContext  from "./Context/Context";
+import CurrentMatch from "./components/Dashboard/CurrentMatches/CurrentMatch";
 
 function App() {
   const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    const hasSeenLoader = sessionStorage.getItem("hasSeenLoader");
+
+    if (!hasSeenLoader) {
+      setTimeout(() => {
+        setLoading(false);
+        sessionStorage.setItem("hasSeenLoader", "true");
+      }, 2000); // Adjust the time as needed
+    } else {
+      setLoading(false);
+    }
+  }, []);
 
   return (
     <UserProvider>
@@ -26,7 +38,10 @@ function App() {
       ) : (
         <Router>
           <Routes>
-            <Route path="/" element={<Signup />} />
+            <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
+            <Route path="/live-matches" element={<CurrentMatch/>} />
+
+            <Route path="/signup" element={<Signup />} />
             <Route path="/verifyOtp" element={<VerifyOTP />} />
             <Route path="/setpassword" element={<SetPassword />} />
             <Route path="/login" element={<Login />} />
@@ -34,7 +49,6 @@ function App() {
             <Route path="/forgot-password" element={<ForgetPass/>}/> 
             <Route path="/forgot-password/verify-password" element={<ForgetVerifyOtp/>}/> 
             <Route path="/forgot-password/changePass" element={<ChangePass/>} />
-            <Route path="/home" element={<PrivateRoute><Home /></PrivateRoute>} />
           </Routes>
         </Router>
        )} 

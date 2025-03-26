@@ -86,8 +86,7 @@ export const UserProvider = ({ children }) => {
     if (response.data.token) {
       localStorage.setItem("token", response.data.token);
       alert("Login succesfull! Welcome to Dashboard.");
-      // Navigate("/home")
-      window.location.href = "/home";
+      window.location.href = "/";
       return { success: true, message: response.data.message };
     }
     

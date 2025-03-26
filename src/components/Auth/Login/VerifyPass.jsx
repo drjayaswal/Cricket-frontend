@@ -29,7 +29,7 @@ const VerifyPass = () => {
     const response = await login(LoginPhone, password);
     
     if (response.success) {
-      navigate("/home"); // Redirect to dashboard after successful login
+      navigate("/"); // Redirect to dashboard after successful login
     } else {
       setError(response.message);
     }
@@ -105,7 +105,7 @@ const VerifyPass = () => {
               <button
                 href="#"
                 className="text-blue-400 hover:underline cursor-pointer"
-                onClick={() => navigate("/")}
+                onClick={() => navigate("/signup")}
               >
                 SignUp
               </button>
