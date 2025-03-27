@@ -17,7 +17,8 @@ const Home = () => {
   return (
     <div>
       <Navbar/>
-      <BettingInterface/>
+      {/* <BettingInterface/> */}
+      <h2>THis is Home Page Welcome to the Cricket World </h2>
       <button onClick={handlelogout}>logout</button>
     </div>
   )

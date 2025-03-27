@@ -14,6 +14,7 @@ import ForgetPass from "./components/Auth/Forgetpass/ForgetPass";
 import ForgetVerifyOtp from "./components/Auth/Forgetpass/ForgetVerifyOtp";
 import ChangePass from "./components/Auth/Forgetpass/ChangePass";
 import CurrentMatch from "./components/Dashboard/CurrentMatches/CurrentMatch";
+import BettingInterface from "./components/Dashboard/mini-components/BettingInterface";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -38,8 +39,9 @@ function App() {
       ) : (
         <Router>
           <Routes>
-            <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
-            <Route path="/live-matches" element={<CurrentMatch/>} />
+            <Route path="/" element={<><Home /></>} />
+            <Route path="/betting-interface" element={<PrivateRoute><BettingInterface /></PrivateRoute>} />
+            <Route path="/live-matches" element={<PrivateRoute><CurrentMatch /></PrivateRoute>} />
 
             <Route path="/signup" element={<Signup />} />
             <Route path="/verifyOtp" element={<VerifyOTP />} />

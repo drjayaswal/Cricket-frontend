@@ -1,213 +1,235 @@
-import { useState, useEffect } from "react"
-import { Calendar, Clock, Trophy } from "lucide-react"
+import { Calendar, MapPin } from "lucide-react";
+import { useEffect, useState } from "react";
+import BettingInterface from "../mini-components/BettingInterface";
 
-export default function CricketMatchCard() {
-  const [todayMatches, setTodayMatches] = useState([])
-  const [yesterdayMatches, setYesterdayMatches] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+export default function CurrentMatch() {
+  const [matchData, setMatchData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedMatch, setSelectedMatch] = useState(null);
+  const [scoreData, setScoreData] = useState(null);
+  const [pollingActive, setPollingActive] = useState(false);
+  const [pollingInterval, setPollingIntervalState] = useState(null);
 
+  
   useEffect(() => {
-    // Function to fetch cricket match data
-    const fetchMatchData = async () => {
+    const fetchMatches = async () => {
       try {
-        // Replace with your actual API endpoint
-        const response = await fetch("https://api.cricapi.com/v1/cricScore?apikey=13fc6f81-2b01-46c6-b5e8-5e1eaafbe52a")
-        const data = await response.json()
+        setIsLoading(true);
+        const response = await fetch("http://localhost:5001/matches/all-stored-matches");
 
-        if (data.status !== "success") {
-          throw new Error("Failed to fetch match data")
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        // Get today's and yesterday's dates
-        const today = new Date()
-        const yesterday = new Date(today)
-        yesterday.setDate(yesterday.getDate() - 1)
+        const data = await response.json();
+        console.log(data.matches);
+        
+        let extractedMatches = [];
 
-        // Format dates to compare with match dates (YYYY-MM-DD)
-        const todayStr = formatDateForComparison(today)
-        const yesterdayStr = formatDateForComparison(yesterday)
+        data.matches.forEach((series) => {
+          series.matchScheduleList.forEach((matchSchedule) => {
+            matchSchedule.matchInfo.forEach((match) => {
+              extractedMatches.push({
+                matchId: match.matchId || null,
+                seriesName: matchSchedule.seriesName || "Series Not Available",
+                format: match.matchFormat || "Format Not Available",
+                team1: match.team1?.teamName || "Team 1",
+                team2: match.team2?.teamName || "Team 2",
+                startDate: match.startDate ? Number(match.startDate) : null,
+                venue: match.venueInfo?.ground || "Venue Not Available",
+              });
+            });
+          });
+        });
 
-        // Filter matches for today
-        const matchesToday = data.data.filter((match) => {
-          const matchDate = formatDateForComparison(new Date(match.dateTimeGMT))
-          return matchDate === todayStr
-        })
+        // Filter only today's matches that are T20 or IPL
+        const today = new Date();
+        const todayMatches = extractedMatches.filter((match) => {
+          if (!match.startDate) return false;
+          const matchDate = new Date(match.startDate);
+          const isToday = (
+            matchDate.getDate() === today.getDate() &&
+            matchDate.getMonth() === today.getMonth() &&
+            matchDate.getFullYear() === today.getFullYear()
+          );
+          const isT20OrIPL = match.format === "T20" || match.seriesName.includes("IPL");
+          return isToday && isT20OrIPL;
+        });
 
-        // Filter completed matches from yesterday
-        const matchesYesterday = data.data.filter((match) => {
-          const matchDate = formatDateForComparison(new Date(match.dateTimeGMT))
-          return matchDate === yesterdayStr && match.ms === "result"
-        })
+        setMatchData(todayMatches);
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Failed to fetch matches:", error);
+        setError(error.message);
+        setIsLoading(false);
+      }
+    };
 
-        setTodayMatches(matchesToday)
-        setYesterdayMatches(matchesYesterday)
-        setLoading(false)
-      } catch (err) {
-        console.error("Error fetching match data:", err)
-        setError("Failed to load match data. Please try again later.")
-        setLoading(false)
+    fetchMatches();
+    
+    return () => {
+      if (pollingInterval) {
+        clearInterval(pollingInterval);
+      }
+    };
+  }, []);
+
+  const fetchScoreData = async (match) => {
+    try {
+      const response = await fetch(`http://localhost:5001/match-scores/${match.matchId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setScoreData(data);
+      
+      if (data.matchScore?.isMatchComplete) {
+        stopPolling();
+      }
+      
+      return data;
+    } catch (error) {
+      console.error("Failed to fetch score:", error);
+      setError(error.message);
+      return null;
+    }
+  };
+
+  const handleGetScore = async (match) => {
+    setSelectedMatch(match);
+    
+    const data = await fetchScoreData(match);
+    if (data) {
+      if (!data.matchScore?.isMatchComplete) {
+        startPolling(match);
       }
     }
+  };
+  
+  const startPolling = (match) => {
+    if (!pollingActive) {
+      setPollingActive(true);
+      
+      const interval = setInterval(() => {
+        fetchScoreData(match);
+      }, 60000);
+      
+      setPollingIntervalState(interval);
+    }
+  };
+  
+  const stopPolling = () => {
+    if (pollingInterval) {
+      clearInterval(pollingInterval);
+      setPollingIntervalState(null);
+      setPollingActive(false);
+    }
+  };
 
-    fetchMatchData()
-  }, [])
+  const formatDate = (timestamp) => {
+    return timestamp
+      ? new Date(Number(timestamp)).toLocaleString("en-US", {
+          weekday: "short",
+          month: "short",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        })
+      : "Date Not Available";
+  };
 
-  // Helper function to format date for comparison (YYYY-MM-DD)
-  const formatDateForComparison = (date) => {
-    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`
-  }
+  const handleBackToMatches = () => {
+    stopPolling();
+    setSelectedMatch(null);
+    setScoreData(null);
+  };
 
-  // Function to format match time
-  const formatMatchTime = (dateTimeGMT) => {
-    const date = new Date(dateTimeGMT)
-    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-  }
-
-  if (loading) {
+  if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">
+        Loading matches...
       </div>
-    )
+    );
   }
 
   if (error) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="text-center text-red-500">{error}</div>
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center text-red-500">
+        Error: {error}
       </div>
-    )
+    );
+  }
+
+  if (selectedMatch && scoreData) {
+    return (
+      <>
+        <button 
+          onClick={handleBackToMatches}
+          className="bg-gray-700 text-white px-4 py-2 rounded m-4 hover:bg-gray-600 transition-colors"
+        >
+          ← Back to Matches
+        </button>
+        <BettingInterface 
+          matchData={scoreData} 
+          selectedMatch={selectedMatch} 
+          refreshData={() => fetchScoreData(selectedMatch)}
+          isPollingActive={pollingActive}
+        />
+      </>
+    );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6 text-center">Cricket Match Schedule</h1>
+    <div className="min-h-screen bg-gray-900 text-white p-4">
+      <h1 className="text-3xl font-bold mb-6 text-center">Today's Matches</h1>
 
-      {/* Today's Matches */}
-      <div className="mb-10">
-        <div className="flex items-center mb-6">
-          <Calendar className="mr-2 h-5 w-5 text-primary" />
-          <h2 className="text-2xl font-semibold">Today's Matches</h2>
-        </div>
-
-        {todayMatches.length === 0 ? (
-          <div className="text-center py-8 bg-muted rounded-lg">
-            <p className="text-xl text-muted-foreground">No matches scheduled for today</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {todayMatches.map((match) => (
-              <MatchCard key={match.id} match={match} />
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Yesterday's Completed Matches */}
-      {yesterdayMatches.length > 0 && (
+      {matchData.length > 0 ? (
         <div>
-          <hr className="my-8" />
+          {matchData.map((match, index) => (
+            <div key={index} className="bg-gray-800 rounded-lg shadow-md p-4 mb-4 hover:bg-gray-700 transition-colors">
+              <div className="flex justify-between items-center mb-3">
+                <span className="text-sm text-gray-400">{match.seriesName}</span>
+                <span className="text-sm text-gray-400 uppercase">{match.format}</span>
+              </div>
 
-          <div className="flex items-center mb-6">
-            <Calendar className="mr-2 h-5 w-5 text-primary" />
-            <h2 className="text-2xl font-semibold">Yesterday's Completed Matches</h2>
-          </div>
+              <div className="flex justify-between items-center mb-3">
+                <div className="flex items-center space-x-2">
+                  <span className="font-bold">{match.team1}</span>
+                  <span>vs</span>
+                  <span className="font-bold">{match.team2}</span>
+                </div>
+                <button 
+                  onClick={() => handleGetScore(match)}
+                  className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition-colors"
+                >
+                  Get Score
+                </button>
+              </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {yesterdayMatches.map((match) => (
-              <MatchCard key={match.id} match={match} />
-            ))}
-          </div>
+              <div className="flex items-center space-x-4 text-gray-400">
+                <div className="flex items-center space-x-1">
+                  <Calendar className="w-4 h-4" />
+                  <span>{formatDate(match.startDate)}</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <MapPin className="w-4 h-4" />
+                  <span>{match.venue}</span>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
+      ) : (
+        <div className="text-center text-gray-400">No matches today</div>
       )}
     </div>
-  )
+  );
 }
-
-// Separate MatchCard component for better organization
-function MatchCard({ match }) {
-  // Function to get team name without the code in brackets
-  const getTeamName = (teamWithCode) => {
-    return teamWithCode.split("[")[0].trim()
-  }
-
-  // Function to format match time
-  const formatMatchTime = (dateTimeGMT) => {
-    const date = new Date(dateTimeGMT)
-    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-  }
-
-  // Function to get status badge color based on match status
-  const getStatusColor = (status, ms) => {
-    if (ms === "fixture") return "bg-blue-500 p-2"
-    if (ms === "result") return "bg-green-500 p-2"
-    return "bg-yellow-500"
-  }
-
-  return (
-    <div className="overflow-hidden hover:shadow-lg transition-shadow duration-300 bg-white text-black p-4">
-      <div className="pb-2">
-        <div className="flex justify-between items-center">
-          <p className={`${getStatusColor(match.status, match.ms)} text-white`}>
-            {match.ms === "fixture" ? "Upcoming" : "Completed"}
-          </p>
-          <span className="text-sm text-muted-foreground uppercase">{match.matchType}</span>
-        </div>
-        <div className="text-lg mt-2 line-clamp-1">{match.series}</div>
-      </div>
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center text-sm text-muted-foreground">
-            <Clock className="h-4 w-4 mr-1" />
-            <span>{formatMatchTime(match.dateTimeGMT)}</span>
-          </div>
-        </div>
-
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex flex-col items-center w-2/5">
-            <div className="relative h-16 w-16 mb-2">
-              <img
-                src={match.t1img || "/placeholder.svg?height=64&width=64"}
-                alt={getTeamName(match.t1)}
-                fill
-                className="object-contain"
-              />
-            </div>
-            <h3 className="font-semibold text-center">{getTeamName(match.t1)}</h3>
-            {match.t1s && <p className="text-sm font-bold mt-1">{match.t1s}</p>}
-          </div>
-
-          <div className="flex flex-col items-center w-1/5">
-            <span className="text-xl font-bold">VS</span>
-          </div>
-
-          <div className="flex flex-col items-center w-2/5">
-            <div className="relative h-16 w-16 mb-2">
-              <img
-                src={match.t2img || "/placeholder.svg?height=64&width=64"}
-                alt={getTeamName(match.t2)}
-                fill
-                className="object-contain"
-              />
-            </div>
-            <h3 className="font-semibold text-center">{getTeamName(match.t2)}</h3>
-            {match.t2s && <p className="text-sm font-bold mt-1">{match.t2s}</p>}
-          </div>
-        </div>
-
-        <div className="mt-4 pt-4 border-t">
-          {match.ms === "result" ? (
-            <div className="flex items-center">
-              <Trophy className="h-4 w-4 mr-2 text-yellow-500" />
-              <p className="text-sm font-medium">{match.status}</p>
-            </div>
-          ) : (
-            <p className="text-sm text-center font-medium">{match.status}</p>
-          )}
-        </div>
-      </div>
-    </div>
-  )
-}
-

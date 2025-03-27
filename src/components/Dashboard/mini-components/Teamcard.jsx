@@ -20,7 +20,7 @@ const Teamcard = ({team}) => {
           <div
             key={index}
             className={`w-1 md:w-5 ${team.color === "green" ? "bg-green-500" : "bg-yellow-500"}`}
-            style={{ height: `${value * 4}%` }}
+            style={{ height: `${(value / Math.max(...team.graphData)) * 100}%` }}
           ></div>
         ))}
       </div>
