@@ -1,0 +1,24 @@
+  if (selectedMatch && scoreData) {
+    return (
+      <>
+        <button 
+          onClick={handleBackToMatches}
+          className="bg-gray-700 text-white px-4 py-2 rounded m-4 hover:bg-gray-600 transition-colors"
+        >
+          ← Back to Matches
+        </button>
+        <BettingInterface 
+          matchData={scoreData} 
+          selectedMatch={selectedMatch} 
+          refreshData={() => fetchScoreData(selectedMatch)}
+          isPollingActive={pollingActive}
+        />
+      </>
+    );
+  }
+
+    const handleBackToMatches = () => {
+    stopPolling();
+    setSelectedMatch(null);
+    setScoreData(null);
+  };

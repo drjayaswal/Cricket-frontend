@@ -1,6 +1,8 @@
 import React, { useContext, useState } from 'react'
 import { UserContext } from '../../../Context/UserContext'
 import { useNavigate } from 'react-router-dom'
+import { toast } from "react-toastify";
+
 
 const ForgetPass = () => {
 
@@ -39,13 +41,13 @@ const ForgetPass = () => {
       const response = await sendForgotPasswordOtp(phoneNumber);
   
       if (response?.message === "OTP sent successfully for password reset") {
-        alert(response?.message);
+        toast.success(response?.message);
         navigate("/forgot-password/verify-password"); // Navigate to OTP verification page
       } else if (response?.message === "User not found") {
-        alert("No account found with this phone number. Please register first.");
+        toast.info("No account found with this phone number. Please register first.");
         navigate("/signup"); 
       } else {
-        alert(response?.error || "Failed to send OTP. Please try again.");
+        toast.error(response?.error || "Failed to send OTP. Please try again.");
       }
     } catch (error) {
       console.log(error,"koi or dikkat hai");

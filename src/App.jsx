@@ -15,6 +15,7 @@ import ForgetVerifyOtp from "./components/Auth/Forgetpass/ForgetVerifyOtp";
 import ChangePass from "./components/Auth/Forgetpass/ChangePass";
 import CurrentMatch from "./components/Dashboard/CurrentMatches/CurrentMatch";
 import BettingInterface from "./components/Dashboard/mini-components/BettingInterface";
+import {ToastContainer} from 'react-toastify'
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -33,13 +34,16 @@ function App() {
   }, []);
 
   return (
+    
     <UserProvider>
        {loading ? (
-        <Preloader onComplete={() => setLoading(false)} />
-      ) : (
-        <Router>
+         <Preloader onComplete={() => setLoading(false)} />
+        ) : (
+          <>
+            <ToastContainer position="top-right" autoClose={3000} />
+          <Router>
           <Routes>
-            <Route path="/" element={<><Home /></>} />
+            <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
             <Route path="/betting-interface" element={<PrivateRoute><BettingInterface /></PrivateRoute>} />
             <Route path="/live-matches" element={<PrivateRoute><CurrentMatch /></PrivateRoute>} />
 
@@ -53,6 +57,7 @@ function App() {
             <Route path="/forgot-password/changePass" element={<ChangePass/>} />
           </Routes>
         </Router>
+          </>
        )} 
 
     </UserProvider>

@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../../../Context/UserContext';
+import { toast } from "react-toastify";
 
 const ForgetVerifyOtp = () => {
 
@@ -12,7 +13,7 @@ const ForgetVerifyOtp = () => {
 
     const handleVerifyOTP = async () => {
         if (!OTP) {
-          alert("Please enter OTP");
+          toast.info("Please enter OTP");
           setError("Please enter OTP")
           return;
         }
@@ -21,13 +22,14 @@ const ForgetVerifyOtp = () => {
           const response = await verifyOtp(ForgetPhone, OTP);
       
           if (response?.message === "OTP verified successfully") {
+            toast.success("OTP verified successfully!");  
             navigate("/forgot-password/changePass"); 
           } else {
-            alert(response?.error || "OTP verification failed. Please try again.");
+            toast.error(response?.error || "OTP verification failed. Please try again.");
           }
         } catch (error) {
           console.error("OTP Verification Error:", error);
-          alert("Something went wrong. Please try again.");
+          toast.error("Something went wrong. Please try again.");
         }
       };
     

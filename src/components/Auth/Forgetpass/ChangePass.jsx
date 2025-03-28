@@ -3,6 +3,7 @@ import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { UserContext } from "../../../Context/UserContext";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const ChangePass = () => {
   const [showOldPassword, setshowOldPassword] = useState(false);
@@ -54,18 +55,18 @@ const ChangePass = () => {
       const response = await Updatepassword(ForgetPhone,oldPassword,password)     
   
       if (response?.message === "Password changed successfully") {
-        alert("Password changed successfully!");
+        toast.succes("Password changed successfully!");
         navigate("/");
       } else if(response?.message === "User not found"){
-        alert("User not found Go Register first!!!");
+        toast.info("User not found Go Register first!!!");
         navigate("/signup");
       }else if(response?.message === "Incorrect old password"){
-        alert("Incorrect old password");
+        toast.error("Incorrect old password");
         
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("Password change failed. Please try again.");
+      toast.error("Password change failed. Please try again.");
     }
   };
   

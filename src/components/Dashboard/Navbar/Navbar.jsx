@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+// import { a } from "react-router-dom";
 import { Menu, X } from "lucide-react"
 
 const Navbar = () => {
@@ -15,29 +15,29 @@ const Navbar = () => {
         <Menu size={24} />
       </button>
 
-      <Link href="/" className="text-blue-500 text-xl font-bold">
+      <a href="/" className="text-blue-500 text-xl font-bold">
         Galaxy
-      </Link>
+      </a>
 
       <div className="hidden lg:flex items-center space-x-6 text-gray-300">
-        <Link href="/" className="hover:text-blue-500 transition-colors">
+        <a href="/" className="hover:text-blue-500 transition-colors">
           Home
-        </Link>
+        </a>
         <a href="/live-matches" className="hover:text-blue-500 transition-colors">
           Live Matches
         </a>
-        <Link href="/mybets" className="hover:text-blue-500 transition-colors">
+        <a href="/mybets" className="hover:text-blue-500 transition-colors">
           MyBets
-        </Link>
-        <Link href="/wallet" className="hover:text-blue-500 transition-colors">
+        </a>
+        <a href="/wallet" className="hover:text-blue-500 transition-colors">
           Wallet
-        </Link>
-        <Link href="/contact" className="hover:text-blue-500 transition-colors">
+        </a>
+        <a href="/contact" className="hover:text-blue-500 transition-colors">
           Contact
-        </Link>
-        <Link href="/about" className="hover:text-blue-500 transition-colors">
+        </a>
+        <a href="/about" className="hover:text-blue-500 transition-colors">
           About Us
-        </Link>
+        </a>
       </div>
 
       <div className="w-10 h-10 rounded-full overflow-hidden">
@@ -74,58 +74,58 @@ const Navbar = () => {
         <nav className="p-4">
           <ul className="space-y-4">
             <li>
-              <Link
+              <a
                 href="/"
                 className="block py-2 text-gray-300 hover:text-blue-500 transition-colors"
                 onClick={toggleMenu}
               >
                 Home
-              </Link>
+              </a>
             </li>
             <li>
-              <Link
+              <a
                 href="/live-matches"
                 className="block py-2 text-gray-300 hover:text-blue-500 transition-colors"
                 onClick={toggleMenu}
               >
                 Live Matches
-              </Link>
+              </a>
             </li>
             <li>
-              <Link
+              <a
                 href="/mybets"
                 className="block py-2 text-gray-300 hover:text-blue-500 transition-colors"
                 onClick={toggleMenu}
               >
                 MyBets
-              </Link>
+              </a>
             </li>
             <li>
-              <Link
+              <a
                 href="/wallet"
                 className="block py-2 text-gray-300 hover:text-blue-500 transition-colors"
                 onClick={toggleMenu}
               >
                 Wallet
-              </Link>
+              </a>
             </li>
             <li>
-              <Link
+              <a
                 href="/contact"
                 className="block py-2 text-gray-300 hover:text-blue-500 transition-colors"
                 onClick={toggleMenu}
               >
                 Contact
-              </Link>
+              </a>
             </li>
             <li>
-              <Link
+              <a
                 href="/about"
                 className="block py-2 text-gray-300 hover:text-blue-500 transition-colors"
                 onClick={toggleMenu}
               >
                 About Us
-              </Link>
+              </a>
             </li>
           </ul>
         </nav>

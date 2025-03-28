@@ -3,6 +3,8 @@ import { UserContext } from "../../../Context/UserContext";
 import { useNavigate } from "react-router-dom";
 import GoogleIcon from "../../GoogleIcon/GoogleIcon";
 import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
+import { toast } from "react-toastify";
+
 
 export default function Signup() {
   const { SignupPhone, setSignupPhone, sendOtp, handleGoogleSuccess } =
@@ -43,15 +45,15 @@ export default function Signup() {
       const response = await sendOtp(phoneNumber);
 
       if (response?.message === "OTP sent successfully") {
-        alert(response?.message);
+        toast.success(response?.message);
         navigate("/verifyOtp");
       } else if (response?.message === "User already exist") {
-        alert(
+        toast.info(
           "User already exist. Please login with your registered phone number."
         );
         navigate("/login");
       } else {
-        alert(response?.error || "Failed to send OTP. Please try again.");
+        toast.error(response?.error || "Failed to send OTP. Please try again.");
       }
     } catch (error) {
       console.log(error);
@@ -127,7 +129,7 @@ export default function Signup() {
               <button className="w-full flex justify-start cursor-pointer border-gray-700 p-2 rounded-lg text-xl items-center outline-2 outline-gray-500 text-gray-400">
               <GoogleLogin
                 onSuccess={handleGoogleSuccess}
-                onError={() => alert("Google Login Failed")}
+                onError={() => toast.error("Google Login Failed")}
               />
               </button>
             </GoogleOAuthProvider>

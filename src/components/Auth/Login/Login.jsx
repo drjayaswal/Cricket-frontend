@@ -3,6 +3,8 @@ import GoogleIcon from "../../GoogleIcon/GoogleIcon";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../../../Context/UserContext";
 import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
+import { toast } from "react-toastify";
+
 
 const Login = () => {
   const { LoginPhone, setLoginPhone,handleGoogleSuccess } = useContext(UserContext);
@@ -98,7 +100,7 @@ const Login = () => {
               <button className="w-full flex justify-start cursor-pointer border-gray-700 p-2 rounded-lg text-xl items-center outline-2 outline-gray-500 text-gray-400">
                 <GoogleLogin
                   onSuccess={handleGoogleSuccess}
-                  onError={() => alert("Google Login Failed")}
+                  onError={() => toast.error("Google Login Failed")}
                 />
               </button>
             </GoogleOAuthProvider>

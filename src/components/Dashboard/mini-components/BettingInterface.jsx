@@ -1,19 +1,36 @@
+// import { useContext } from 'react'
 import MatchTabs from './MatchTabs'
 import PlayerCard from './PlayerCard'
 import Teamcard from './Teamcard'
+import { UserContext } from '../../../Context/UserContext'
+import { useEffect } from 'react'
+import { toast } from 'react-toastify'
+import Navbar from '../Navbar/Navbar'
 
-const BettingInterface = ({ matchData, selectedMatch }) => {
+const BettingInterface = () => {
 
+  const matchData = JSON.parse(localStorage.getItem('MatchData') || "[]");
+  const selectedMatch = JSON.parse(localStorage.getItem("SelectedMatch") || "{}");
+      
+
+  useEffect(() => {
+    if (selectedMatch) {
+      toast.info(`Now viewing: ${selectedMatch.team1} vs ${selectedMatch.team2}`);
+    }
+  }, [selectedMatch]);
+  
   
   // Get the latest innings data
-  const currentInnings = matchData.matchScore?.innings?.[matchData.matchScore.innings.length - 1];
-  const previousInnings = matchData.matchScore?.innings?.[matchData.matchScore.innings.length - 2];
+  const currentInnings = matchData?.matchScore?.innings?.[matchData.matchScore.innings.length - 1];
+  const previousInnings = matchData?.matchScore?.innings?.[matchData.matchScore.innings.length - 2];
+
+  
 
   // Transform the data for teams display
   const teams = [
     {
       id: 1,
-      name: selectedMatch.team1,
+      name: selectedMatch?.team1,
       score: matchData.matchScore?.innings?.find(inn => inn.batTeamName === selectedMatch.team1)
         ? `${matchData.matchScore.innings.find(inn => inn.batTeamName === selectedMatch.team1).score}/
            ${matchData.matchScore.innings.find(inn => inn.batTeamName === selectedMatch.team1).wickets}`
@@ -24,7 +41,7 @@ const BettingInterface = ({ matchData, selectedMatch }) => {
     },
     {
       id: 2,
-      name: selectedMatch.team2,
+      name: selectedMatch?.team2,
       score: matchData.matchScore?.innings?.find(inn => inn.batTeamName === selectedMatch.team2)
         ? `${matchData.matchScore.innings.find(inn => inn.batTeamName === selectedMatch.team2).score}/
            ${matchData.matchScore.innings.find(inn => inn.batTeamName === selectedMatch.team2).wickets}`
@@ -37,7 +54,7 @@ const BettingInterface = ({ matchData, selectedMatch }) => {
         // Calculate graph data based on team performance
         const score = innings.score || 0;
         const wickets = innings.wickets || 0;
-        const overs = parseFloat(innings.overs || "0.0");
+        // const overs = parseFloat(innings.overs || "0.0");
         
         // Create a performance-based graph with some variation
         // Higher scores and lower wickets result in higher graph values
@@ -59,6 +76,9 @@ const BettingInterface = ({ matchData, selectedMatch }) => {
     }
   ]
 
+  console.log(teams);
+  
+
   // Transform batsmen data for player cards
   const players = currentInnings?.batsmen?.map((batsman) => ({
     id: batsman.id,
@@ -72,7 +92,7 @@ const BettingInterface = ({ matchData, selectedMatch }) => {
     Fours: batsman.fours,
     Sixes:batsman.sixes,
     balls:batsman.balls,
-    progress: (batsman.runs / (batsman.balls || 1)) * 100,
+    progress: Math.min(100, (batsman.runs / (batsman.balls || 1)) * 100),
     strikeRate: batsman.strkRate || "0.00",
     status: batsman.outDec,
     isCaptain: batsman.isCaptain,
@@ -90,6 +110,9 @@ const BettingInterface = ({ matchData, selectedMatch }) => {
   ]
 
   return (
+    <>
+      <Navbar />
+      
     <div className="max-w-md mx-auto ms:mx-0 md:max-w-full px-4 py-6">
       <div className="mb-6">
         <div className="relative mb-2">
@@ -147,6 +170,7 @@ const BettingInterface = ({ matchData, selectedMatch }) => {
         </div>
       )}
     </div>
+          </>
   )
 }
 
