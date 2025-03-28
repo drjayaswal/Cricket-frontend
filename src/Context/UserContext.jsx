@@ -7,7 +7,7 @@ export const UserContext = createContext();
 // Provider Component
 export const UserProvider = ({ children }) => {
 
-  const BACKEND_URL = "http://localhost:5000/auth"
+  const BACKEND_URL = "http://localhost:5001/auth"
   
   // SignUp content start from there
   const [SignupPhone, setSignupPhone] = useState("");
