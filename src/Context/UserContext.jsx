@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useState, useRef, useCallback } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 
@@ -7,16 +7,14 @@ export const UserContext = createContext();
 
 // Provider Component
 export const UserProvider = ({ children }) => {
-  const BACKEND_URL = "http://localhost:5001/auth";
+  const BACKEND_URL = "http://localhost:5001";
 
-  // SignUp content start from there
+  // SignUp related states
   const [SignupPhone, setSignupPhone] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [LoginPhone, setLoginPhone] = useState("");
   const [ForgetPhone, setForgetPhone] = useState("");
   const [OTP, SetOTP] = useState("");
-
-  // signUp content ends here
 
   // Match data states
   const [matchData, setMatchData] = useState([]);
@@ -24,14 +22,12 @@ export const UserProvider = ({ children }) => {
   const [error, setError] = useState(null);
   const [selectedMatch, setSelectedMatch] = useState(null);
   const [scoreData, setScoreData] = useState(null);
-  const [pollingActive, setPollingActive] = useState(false);
-  const [pollingInterval, setPollingIntervalState] = useState(null);
   const [seriesMatchData, setSeriesMatchData] = useState(null);
+  const pollingIntervalRef = useRef(null);
 
-  // match data states ends here
-
+  // Authentication Methods
   const sendOtp = async (phonenumber) => {
-    const response = await axios.post(`${BACKEND_URL}/send-otp`, {
+    const response = await axios.post(`${BACKEND_URL}/auth/send-otp`, {
       mobile: phonenumber,
     });
     return response.data;
@@ -39,7 +35,7 @@ export const UserProvider = ({ children }) => {
 
   const sendForgotPasswordOtp = async (phonenumber) => {
     const response = await axios.post(
-      `${BACKEND_URL}/forgot-password/sendOtp`,
+      `${BACKEND_URL}/auth/forgot-password/sendOtp`,
       { mobile: phonenumber }
     );
     return response.data;
@@ -47,7 +43,7 @@ export const UserProvider = ({ children }) => {
 
   const Updatepassword = async (mobile, oldPassword, newPassword) => {
     try {
-      const response = await axios.post(`${BACKEND_URL}/change-password`, {
+      const response = await axios.post(`${BACKEND_URL}/auth/change-password`, {
         mobile,
         oldPassword,
         newPassword,
@@ -63,7 +59,7 @@ export const UserProvider = ({ children }) => {
 
   const verifyOtp = async (mobile, otp) => {
     try {
-      const response = await axios.post(`${BACKEND_URL}/verify-otp`, {
+      const response = await axios.post(`${BACKEND_URL}/auth/verify-otp`, {
         mobile,
         otp,
       });
@@ -77,20 +73,20 @@ export const UserProvider = ({ children }) => {
   };
 
   const setPasswordHandler = async (mobile, password) => {
-    await axios.post(`${BACKEND_URL}/set-password`, { mobile, password });
+    await axios.post(`${BACKEND_URL}/auth/set-password`, { mobile, password });
     alert("Signup complete! Now you can login");
   };
 
   const login = async (mobile, password) => {
     try {
-      const response = await axios.post(`${BACKEND_URL}/login`, {
+      const response = await axios.post(`${BACKEND_URL}/auth/login`, {
         mobile,
         password,
       });
 
       if (response.data.token) {
         localStorage.setItem("token", response.data.token);
-        alert("Login succesfull! Welcome to Dashboard.");
+        alert("Login successful! Welcome to Dashboard.");
         return { success: true, message: response.data.message };
       }
     } catch (error) {
@@ -102,8 +98,6 @@ export const UserProvider = ({ children }) => {
   };
 
   const handleGoogleSuccess = async (credentialResponse) => {
-    console.log(credentialResponse);
-
     const tokenId = credentialResponse.credential;
 
     if (!tokenId) {
@@ -111,47 +105,44 @@ export const UserProvider = ({ children }) => {
       return;
     }
 
-    const response = await axios.post(`${BACKEND_URL}/google-login`, {
+    const response = await axios.post(`${BACKEND_URL}/auth/google-login`, {
       tokenId,
     });
     if (response.data.token) {
       localStorage.setItem("token", response.data.token);
-      alert("Login succesfull! Welcome to Dashboard.");
+      alert("Login successful! Welcome to Dashboard.");
       window.location.href = "/";
       return { success: true, message: response.data.message };
     }
   };
 
   const logout = () => {
-    localStorage.removeItem("token"); // Remove token from storage
+    localStorage.removeItem("token");
   };
 
-  // Fetch Matches
+  // Fetch Matches with improved error handling and live match selection
   const fetchMatches = async () => {
     try {
       setIsLoading(true);
-      const response = await axios.get(
-        `http://localhost:5001/matches/all-stored-matches`
-      );
+      const response = await axios.get(`${BACKEND_URL}/matches/all-stored-matches`);
 
-      const extractedMatches =
-        response.data?.matches?.flatMap(
-          (series) =>
-            series.matchScheduleList?.flatMap(
-              (schedule) =>
-                schedule.matchInfo?.map((match) => ({
-                  matchId: match.matchId || null,
-                  seriesName: schedule.seriesName || "Series Not Available",
-                  format: match.matchFormat || "Format Not Available",
-                  team1: match.team1?.teamName || "Team 1",
-                  team2: match.team2?.teamName || "Team 2",
-                  startDate: match.startDate ? Number(match.startDate) : null,
-                  venue: match.venueInfo?.ground || "Venue Not Available",
-                })) || []
-            ) || []
-        ) || [];
+      const extractedMatches = response.data?.matches?.flatMap(
+        (series) =>
+          series.matchScheduleList?.flatMap(
+            (schedule) =>
+              schedule.matchInfo?.map((match) => ({
+                matchId: match.matchId || null,
+                seriesName: schedule.seriesName || "Series Not Available",
+                format: match.matchFormat || "Format Not Available",
+                team1: match.team1?.teamName || "Team 1",
+                team2: match.team2?.teamName || "Team 2",
+                startDate: match.startDate ? Number(match.startDate) : null,
+                venue: match.venueInfo?.ground || "Venue Not Available",
+              })) || []
+          ) || []
+      ) || [];
 
-      // Filter only today's matches that are T20 or IPL
+      // Filter today's live matches
       const today = new Date();
       const todayMatches = extractedMatches.filter((match) => {
         if (!match.startDate) return false;
@@ -166,89 +157,103 @@ export const UserProvider = ({ children }) => {
 
       setMatchData(todayMatches);
 
-      const matchesBySeries = extractedMatches.reduce((acc, match) => {
+      // Organize matches by series
+      const matchesBySeries = todayMatches.reduce((acc, match) => {
         if (!acc[match.seriesName]) {
           acc[match.seriesName] = [];
         }
         acc[match.seriesName].push(match);
         return acc;
       }, {});
-      console.log(matchesBySeries);
-      
-
-      setSeriesMatchData(matchesBySeries)
-
+      setSeriesMatchData(matchesBySeries);
 
       setIsLoading(false);
+
+      // Automatically start polling for the first match if exists
+      if (todayMatches.length > 0) {
+        startAutoPolling(todayMatches[0]);
+      }
     } catch (error) {
       console.error("Failed to fetch matches:", error);
       setError(error.message);
       setIsLoading(false);
+      toast.error("Failed to fetch matches. Please check your connection.");
     }
   };
 
-  // Fetch Score Data
-  const fetchScoreData = async (match) => {
+  // Optimized score fetching with error handling
+  const fetchScoreData = useCallback(async (match) => {
+    if (!match || !match.matchId) return;
+
     try {
       const response = await axios.get(
-        `http://localhost:5001/match-scores/${match.matchId}`
+        `${BACKEND_URL}/match-scores/${match.matchId}`
       );
-  
-      setScoreData(response.data);
-      console.log(response.data);
-      
-      localStorage.setItem("MatchData", JSON.stringify(response.data));
-  
-      if (response.data.matchScore?.isMatchComplete) {
-        stopPolling();
+
+      // Update local storage and state
+      const newScoreData = response.data;
+      setScoreData(newScoreData);
+      localStorage.setItem("MatchData", JSON.stringify(newScoreData));
+      localStorage.setItem("SelectedMatch", JSON.stringify(match));
+
+      // Stop polling if match is complete
+      if (newScoreData.matchScore?.isMatchComplete) {
+        stopAutoPolling();
+        toast.info("Match completed!");
       }
     } catch (error) {
       console.error("Failed to fetch score:", error);
-      toast.error("Failed to fetch live score. Please check your internet.");
-      setError(error.message);
+      toast.error("Failed to fetch live score. Retrying...");
     }
-  };
+  }, []);
 
-  useEffect(() => {
-    if (scoreData) {
-      localStorage.setItem("MatchData", JSON.stringify(scoreData));
+  // Start automatic polling
+  const startAutoPolling = useCallback((match) => {
+    // Clear any existing interval
+    stopAutoPolling();
+
+    // Set selected match
+    setSelectedMatch(match);
+    localStorage.setItem("SelectedMatch", JSON.stringify(match));
+
+    // Initial fetch
+    fetchScoreData(match);
+
+    // Start polling interval
+    pollingIntervalRef.current = setInterval(() => {
+      fetchScoreData(match);
+    }, 1500); // 1.5 seconds interval
+  }, [fetchScoreData]);
+
+  // Stop automatic polling
+  const stopAutoPolling = useCallback(() => {
+    if (pollingIntervalRef.current) {
+      clearInterval(pollingIntervalRef.current);
+      pollingIntervalRef.current = null;
     }
-  }, [scoreData]);
+  }, []);
 
-  // Handle Getting Score
+  // Manually select and start polling for a specific match
   const handleGetScore = async (match) => {
     setSelectedMatch(match);
-
     await fetchScoreData(match);
-    if (!scoreData?.matchScore?.isMatchComplete) {
-      startPolling(match);
-    }
-    if (!pollingActive) {
-      startPolling(match);
-    }
+    startAutoPolling(match);
     localStorage.setItem("SelectedMatch", JSON.stringify(match));
     toast.info(`Selected Match: ${match.team1} vs ${match.team2}`);
     window.location.href = "/betting-interface";
   };
 
-  // Polling Start
-  const startPolling = (match) => {
-    if (pollingActive || !match.matchId) return; // Prevent duplicate polling
-    setPollingActive(true);
-    const interval = setInterval(() => fetchScoreData(match), 1500);
-    setPollingIntervalState(interval);
-  };
+  // Cleanup on component unmount
+  useEffect(() => {
+    fetchMatches();
 
-  // Polling Stop
-  const stopPolling = () => {
-    if (pollingInterval) {
-      clearInterval(pollingInterval);
-      setPollingIntervalState(null);
-      setPollingActive(false);
-    }
-  };
+    // Cleanup function
+    return () => {
+      stopAutoPolling();
+    };
+  }, []);
 
-  // Format Date
+  // Format date utility
   const formatDate = (timestamp) => {
     return timestamp
       ? new Date(Number(timestamp)).toLocaleString("en-US", {
@@ -261,16 +266,10 @@ export const UserProvider = ({ children }) => {
       : "Date Not Available";
   };
 
-  useEffect(() => {
-    fetchMatches();
-    return () => {
-      if (pollingInterval) clearInterval(pollingInterval);
-    };
-  }, []);
-
   return (
     <UserContext.Provider
       value={{
+        // Authentication methods
         SignupPhone,
         setSignupPhone,
         OTP,
@@ -289,14 +288,18 @@ export const UserProvider = ({ children }) => {
         setForgetPhone,
         sendForgotPasswordOtp,
         Updatepassword,
+
+        // Match-related data and methods
         matchData,
         isLoading,
         error,
         selectedMatch,
         scoreData,
+        seriesMatchData,
         handleGetScore,
         formatDate,
-        seriesMatchData
+        startAutoPolling,
+        stopAutoPolling
       }}
     >
       {children}
