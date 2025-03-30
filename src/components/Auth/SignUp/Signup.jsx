@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 
 
 export default function Signup() {
-  const { SignupPhone, setSignupPhone, sendOtp, handleGoogleSuccess } =
+  const { Name,setuserName,SignupPhone, setSignupPhone, sendOtp, handleGoogleSuccess } =
     useContext(UserContext);
   const [error, setError] = useState("");
 
@@ -42,7 +42,7 @@ export default function Signup() {
     setError("");
 
     try {
-      const response = await sendOtp(phoneNumber);
+      const response = await sendOtp(Name,phoneNumber);
 
       if (response?.message === "OTP sent successfully") {
         toast.success(response?.message);
@@ -80,6 +80,17 @@ export default function Signup() {
           {/* Form */}
           <div className="space-y-6">
             <div className="space-y-2">
+            <input
+                type="text"
+                placeholder="Username*"
+                className="border-gray-700 cursor-pointer  p-4 rounded-lg text-white outline-2 outline-gray-500 w-full"
+                value={Name}
+                onChange={(e) => {
+                  setuserName(e.target.value);
+                  setError("");
+                }}
+              />
+            </div>
               <input
                 type="text"
                 placeholder="Phone Number*"
@@ -91,7 +102,7 @@ export default function Signup() {
                 }}
               />
               {error && <p className="text-red-500 text-sm">{error}</p>}
-            </div>
+             
             <button
               className="w-full bg-[#1B8DFF] font-[Teko] tracking-wider py-3 text-2xl cursor-pointer rounded-lg text-white font-bold hover:bg-blue-600"
               onClick={handleNext}

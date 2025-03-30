@@ -10,6 +10,7 @@ export const UserProvider = ({ children }) => {
   const BACKEND_URL = "http://localhost:5001";
 
   // SignUp related states
+  const [Name,setuserName] = useState("")
   const [SignupPhone, setSignupPhone] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [LoginPhone, setLoginPhone] = useState("");
@@ -26,8 +27,9 @@ export const UserProvider = ({ children }) => {
   const pollingIntervalRef = useRef(null);
 
   // Authentication Methods
-  const sendOtp = async (phonenumber) => {
+  const sendOtp = async (Name,phonenumber) => {
     const response = await axios.post(`${BACKEND_URL}/auth/send-otp`, {
+      name:Name,
       mobile: phonenumber,
     });
     return response.data;
@@ -141,7 +143,7 @@ export const UserProvider = ({ children }) => {
               })) || []
           ) || []
       ) || [];
-
+      
       // Filter today's live matches
       const today = new Date();
       const todayMatches = extractedMatches.filter((match) => {
@@ -158,7 +160,7 @@ export const UserProvider = ({ children }) => {
       setMatchData(todayMatches);
 
       // Organize matches by series
-      const matchesBySeries = todayMatches.reduce((acc, match) => {
+      const matchesBySeries = extractedMatches.reduce((acc, match) => {
         if (!acc[match.seriesName]) {
           acc[match.seriesName] = [];
         }
@@ -180,6 +182,7 @@ export const UserProvider = ({ children }) => {
       toast.error("Failed to fetch matches. Please check your connection.");
     }
   };
+  
 
   // Optimized score fetching with error handling
   const fetchScoreData = useCallback(async (match) => {
@@ -203,7 +206,7 @@ export const UserProvider = ({ children }) => {
       }
     } catch (error) {
       console.error("Failed to fetch score:", error);
-      toast.error("Failed to fetch live score. Retrying...");
+      // toast.error("Failed to fetch live score. Retrying...");
     }
   }, []);
 
@@ -270,6 +273,8 @@ export const UserProvider = ({ children }) => {
     <UserContext.Provider
       value={{
         // Authentication methods
+        Name,
+        setuserName,
         SignupPhone,
         setSignupPhone,
         OTP,

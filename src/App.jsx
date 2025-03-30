@@ -16,6 +16,7 @@ import ChangePass from "./components/Auth/Forgetpass/ChangePass";
 import CurrentMatch from "./components/Dashboard/CurrentMatches/CurrentMatch";
 import BettingInterface from "./components/Dashboard/mini-components/BettingInterface";
 import {ToastContainer} from 'react-toastify'
+import UserProfile from "./components/Dashboard/Profile/UserProfile";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -46,6 +47,7 @@ function App() {
             <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
             <Route path="/betting-interface" element={<PrivateRoute><BettingInterface /></PrivateRoute>} />
             <Route path="/live-matches" element={<PrivateRoute><CurrentMatch /></PrivateRoute>} />
+            <Route path="/UserProfile" element={<PrivateRoute><UserProfile/></PrivateRoute>}/>
 
             <Route path="/signup" element={<Signup />} />
             <Route path="/verifyOtp" element={<VerifyOTP />} />

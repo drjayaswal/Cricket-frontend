@@ -5,7 +5,7 @@ import { UserContext } from "../../../Context/UserContext";
 const MatchCard = ({ match }) => {
   const [showPortfolio, setShowPortfolio] = useState(false);
 
-  const { handleGetScore, formatDate } = useContext(UserContext)
+  const { handleGetScore } = useContext(UserContext)
 
   const togglePortfolio = () => {
     setShowPortfolio(!showPortfolio);
@@ -49,10 +49,14 @@ const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
 
           {/* Match Countdown */}
           <div>
-            <p className="text-sm text-gray-400">Match starts in</p>
-            <p className="bg-yellow-500 text-black px-3 py-1 rounded-lg font-bold">
-            {hours}h {minutes}m left
-            </p>
+            
+            <div className={`px-4 py-2 rounded-lg font-bold ${timeDiff > 0 ? 'bg-yellow-500 text-black' : 'bg-red-600 text-white'}`}>
+              
+              {timeDiff > 0 
+                ? <p className="text-sm ">Match starts in {hours}h {minutes}m </p>
+                : 'LIVE'
+              }
+            </div>
           </div>
 
           {/* Team 2 */}

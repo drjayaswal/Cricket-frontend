@@ -6,13 +6,7 @@ import { Calendar, MapPin } from "lucide-react";
 const Home = () => {
   const { seriesMatchData, isLoading, error  } = useContext(UserContext);
 
-  // const{logout} = useContext(UserContext)
-  // const navigate = useNavigate()
 
-  // const handlelogout = ()=>{
-  //   logout()
-  //   navigate("/login")
-  // }
 
   if (isLoading) return <p className="text-center text-lg font-semibold mt-10">Loading matches...</p>;
   if (error) return <p className="text-center text-red-500 mt-10">Error: {error}</p>;
@@ -22,10 +16,10 @@ const Home = () => {
     <>
      <Navbar />
      <h1 className="text-3xl font-bold text-center text-white m-6">
-          🏏 Live and Cricket Matches & Series
+          🏏 Live Cricket Matches & Series
         </h1>
       <div className="container mx-auto p-4">
-        {Object.entries(seriesMatchData).map(([seriesName, matches]) => (
+        {Object.entries(seriesMatchData).map(([seriesName, matches,]) => (
           <div key={seriesName} className="mb-6">
             {/* Series Name Header */}
             <h2 className="text-2xl font-bold text-blue-600 border-b-2 pb-2 mb-4">

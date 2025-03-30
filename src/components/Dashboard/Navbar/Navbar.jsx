@@ -1,9 +1,17 @@
 import React, { useState } from "react";
 // import { a } from "react-router-dom";
 import { Menu, X } from "lucide-react"
+import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const navigate = useNavigate()
+
+  const handleProfile = (e) => {
+    e.preventDefault()
+    navigate("/UserProfile")
+  }
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -40,7 +48,9 @@ const Navbar = () => {
         </a>
       </div>
 
-      <div className="w-10 h-10 rounded-full overflow-hidden">
+      <div className="w-10 h-10 rounded-full overflow-hidden"
+      onClick={(e)=>handleProfile(e)}
+      >
         <img
           src="/placeholder.svg?height=40&width=40"
           alt="Profile"
