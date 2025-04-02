@@ -1,7 +1,6 @@
 import { createContext, useEffect, useState, useRef, useCallback } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-
 // Create Context
 export const UserContext = createContext();
 
@@ -121,6 +120,27 @@ export const UserProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem("token");
   };
+
+
+  // Fetch and store all series in the database in every 24hours
+  useEffect(() => {
+    const fetchSeries = async () => {
+      try {
+        const response = await axios.get(`${BACKEND_URL}/series/all-series`);
+        console.log(response);
+      } catch (error) {
+        console.error("Error fetching and storing series:", error);
+      }
+    };
+
+    fetchSeries(); // Call immediately when component mounts
+
+    const intervalId = setInterval(fetchSeries, 24 * 60 * 60 * 1000); // 24 hours
+
+    return () => clearInterval(intervalId); // Cleanup on unmount
+  }, []);
+
+
 
   // Fetch Matches with improved error handling and live match selection
   const fetchMatches = async () => {

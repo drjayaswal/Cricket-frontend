@@ -2,16 +2,16 @@ import React from 'react'
 
 const Teamcard = ({team}) => {
   return (
-    <div className={`rounded-lg p-3 border ${team.color === "green" ? "border-green-500" : "border-yellow-500"}`}>
+    <div className={`flex  flex-col gap-42rounded-lg p-3 border ${team.color === "green" ? "border-green-500" : "border-yellow-500"}`}>
       <div className="flex justify-between items-center mb-2">
-        <span className="text-sm">{team.name}</span>
-        <div className="w-5 h-5 rounded-full bg-gray-700 flex items-center justify-center">
+        <span className="text-sm  md:text-xl h-10">{team.name}</span>
+        {/* <div className="w-5 h-5 rounded-full bg-gray-700 flex items-center justify-center">
           <span className="text-xs">i</span>
-        </div>
+        </div> */}
       </div>
 
       <div className="text-center mb-1">
-        <div className="text-3xl font-bold">{team.score}</div>
+        <div className="text-xl md:text-3xl font-bold">{team.score}</div>
         <div className="text-xs text-gray-400">{team.percentage}</div>
       </div>
 

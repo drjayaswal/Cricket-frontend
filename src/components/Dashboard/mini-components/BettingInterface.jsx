@@ -96,15 +96,7 @@ const BettingInterface = () => {
     isKeeper: batsman.isKeeper,
   })) || [];
 
-  // Create match tabs data
-  const matches = [
-    { 
-      id: 1, 
-      team1: currentMatch.team1, 
-      team2: currentMatch.team2, 
-      active: true 
-    }
-  ];
+  
 
   return (
     <>
@@ -117,7 +109,7 @@ const BettingInterface = () => {
               {matchData.matchScore?.status || "LIVE"}
             </span>
           </div>
-          <h1 className="text-center text-2xl font-bold mt-6">
+          <h1 className="text-center text-xl md:text-2xl font-bold mt-6">
             {currentMatch.team1} vs {currentMatch.team2}
           </h1>
           <p className="text-center text-gray-400 mt-2">
@@ -137,7 +129,7 @@ const BettingInterface = () => {
           ))}
         </div>
 
-        <MatchTabs matches={matches} />
+        {/* <MatchTabs matches={matches} /> */}
 
         <div className="mt-8">
           <h2 className="text-xl font-bold mb-4">

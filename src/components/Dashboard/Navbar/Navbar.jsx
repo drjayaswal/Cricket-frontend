@@ -34,8 +34,8 @@ const Navbar = () => {
         <a href="/live-matches" className="hover:text-blue-500 transition-colors">
           Live Matches
         </a>
-        <a href="/mybets" className="hover:text-blue-500 transition-colors">
-          MyBets
+        <a href="/Portfolio" className="hover:text-blue-500 transition-colors">
+          Portfolio
         </a>
         <a href="/wallet" className="hover:text-blue-500 transition-colors">
           Wallet
@@ -103,11 +103,11 @@ const Navbar = () => {
             </li>
             <li>
               <a
-                href="/mybets"
+                href="/Portfolio"
                 className="block py-2 text-gray-300 hover:text-blue-500 transition-colors"
                 onClick={toggleMenu}
               >
-                MyBets
+                Portfolio
               </a>
             </li>
             <li>
