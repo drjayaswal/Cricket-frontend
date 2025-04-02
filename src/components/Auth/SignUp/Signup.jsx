@@ -130,12 +130,7 @@ export default function Signup() {
 
           {/* Alternative login methods */}
           <div className="space-y-6">
-            {/* <button className="w-full flex justify-start cursor-pointer border-gray-700 p-2 rounded-lg text-xl items-center outline-2 outline-gray-500 text-gray-400"
-            onClick={handleGoogleLogin}
-            >
-              <GoogleIcon className="mr-2 h-5 w-5" />
-              <span>Continue with Google</span>
-            </button> */}
+
             <GoogleOAuthProvider clientId="705501120220-17knjq3r5ci08tr7guusfpfa4ta0pblh.apps.googleusercontent.com">
               <button className="w-full flex justify-start cursor-pointer border-gray-700 p-2 rounded-lg text-xl items-center outline-2 outline-gray-500 text-gray-400">
               <GoogleLogin

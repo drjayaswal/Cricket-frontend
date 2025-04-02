@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react'
 import { UserContext } from '../../../Context/UserContext'
-import { toast } from 'react-toastify'
+// import { toast } from 'react-toastify'
 import Navbar from '../Navbar/Navbar'
 import MatchTabs from './MatchTabs'
 import PlayerCard from './PlayerCard'
@@ -8,6 +8,7 @@ import Teamcard from './Teamcard'
 
 const BettingInterface = () => {
   const { 
+    // eslint-disable-next-line no-unused-vars
     matchData: contextMatchData, 
     scoreData, 
     selectedMatch, 
@@ -17,6 +18,7 @@ const BettingInterface = () => {
   // Local state to manage match data
   const [matchData, setMatchData] = useState(scoreData || 
     JSON.parse(localStorage.getItem('MatchData') || "{}"));
+     // eslint-disable-next-line no-unused-vars
   const [currentMatch, setCurrentMatch] = useState(
     selectedMatch || JSON.parse(localStorage.getItem("SelectedMatch") || "{}"));
 
