@@ -4,21 +4,25 @@ import { useState, useRef, useContext } from "react"
 import { Camera, ChevronRight, Edit, LogOut, Phone, Shield, Users } from "lucide-react"
 import { UserContext } from "../../../Context/UserContext"
 import { useNavigate } from "react-router-dom"
+import CancelIcon from '@mui/icons-material/Cancel';
+import VerifiedIcon from '@mui/icons-material/Verified';
+import { toast } from "react-toastify"
+
 
 export default function ProfilePage() {
   const [balance, setBalance] = useState(100.0)
-  const [name, setName] = useState("John Doe")
-  const [phoneNumber, setPhoneNumber] = useState("+91 9876543210")
+  const [phoneNumber, setPhoneNumber] = useState("")
   const [showEditPhone, setShowEditPhone] = useState(false)
-  const [newPhoneNumber, setNewPhoneNumber] = useState("")
+  const [showVerifyOtp, setShowVerifyOtp] = useState(false)
   const fileInputRef = useRef(null)
-  const [profileImage, setProfileImage] = useState("/placeholder.svg?height=80&width=80")
   const [showAddMoney, setShowAddMoney] = useState(false)
   const [addAmount, setAddAmount] = useState("")
+  const [OTP,SetOTP] = useState("")
 
   // Add this function after the existing state declarations:
 
-    const{logout} = useContext(UserContext)
+    const{logout,user,uploadImage,VerifyMobile,verifyMobileOtp} = useContext(UserContext)
+    
   const navigate = useNavigate()
 
 
@@ -64,32 +68,98 @@ export default function ProfilePage() {
     }
   }
 
-  const handleImageChange = (e) => {
+  const handleImageChange =async (e) => {
     const file = e.target.files[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        setProfileImage(e.target.result)
-      }
-      reader.readAsDataURL(file)
-    }
+  if (file) {
+    await uploadImage(file);
+  }
+  
   }
 
-  const handlePhoneSubmit = (e) => {
+  const handlePhoneSubmit = async(e, mobile) => {
     e.preventDefault()
-    if (newPhoneNumber.trim()) {
-      setPhoneNumber(newPhoneNumber)
-      setShowEditPhone(false)
+    // check mobile number is start with +91
+    let phoneNumber = mobile.trim();
+
+    // Remove spaces, dashes, or non-numeric characters
+    phoneNumber = phoneNumber.replace(/\D/g, "");
+
+    // Ensure it starts with +91
+    if (!phoneNumber.startsWith("91")) {
+      phoneNumber = `91${phoneNumber}`;
     }
+
+    phoneNumber = `+${phoneNumber}`;
+
+    const phoneRegex = /^\+91[6-9]\d{9}$/;
+
+    if (!phoneRegex.test(phoneNumber)) {
+      toast.error(
+        "Invalid phone number. Must be a valid Indian number (+91XXXXXXXXXX)."
+      );
+      return;
+    }
+  
+    if(phoneNumber) {
+      console.log(phoneNumber);
+      
+      await VerifyMobile(phoneNumber)
+      // setPhoneNumber("")
+      setShowVerifyOtp(true)
+      setShowEditPhone(false)
+    } else {
+      toast.error("Please enter a valid phone number.")
+    }
+     
+  }
+
+  const handleCloseProfile = (()=>{
+    navigate("/")
+  })
+
+  const handleVerifyNumber = async(e,mobile,otp)=>{
+    e.preventDefault()
+
+     // check mobile number is start with +91
+     let phoneNumber = mobile.trim();
+
+     // Remove spaces, dashes, or non-numeric characters
+     phoneNumber = phoneNumber.replace(/\D/g, "");
+ 
+     // Ensure it starts with +91
+     if (!phoneNumber.startsWith("91")) {
+       phoneNumber = `91${phoneNumber}`;
+     }
+ 
+     phoneNumber = `+${phoneNumber}`;
+ 
+     const phoneRegex = /^\+91[6-9]\d{9}$/;
+ 
+     if (!phoneRegex.test(phoneNumber)) {
+       toast.error(
+         "Invalid phone number. Must be a valid Indian number (+91XXXXXXXXXX)."
+       );
+       return;
+     }
+
+    if(otp) {
+      await verifyMobileOtp(phoneNumber, otp)
+      setShowVerifyOtp(false)
+      setShowEditPhone(false)
+      setPhoneNumber("")
+      SetOTP("")
+    }
+
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-900 to-blue-950 text-white">
+    <div className="min-h-screen realtive bg-gradient-to-b from-blue-900 to-blue-950 text-white">
       {/* Header with profile */}
+      <div className="absolute top-2 right-2 z-100 " onClick={handleCloseProfile}><CancelIcon /></div>
       <div className="relative bg-gradient-to-r from-green-800 to-green-700 p-4 flex items-center">
         <div className="relative">
           <img
-            src={profileImage || "/placeholder.svg"}
+            src={user.profileImage}
             alt="Profile"
             className="w-16 h-16 rounded-full border-2 border-white object-cover"
           />
@@ -102,11 +172,11 @@ export default function ProfilePage() {
           <input type="file" ref={fileInputRef} onChange={handleImageChange} className="hidden" accept="image/*" />
         </div>
         <div className="ml-4">
-          <h2 className="font-semibold text-lg">{name}</h2>
+          <h2 className="font-semibold text-lg">{user?.name}</h2>
           <div className="flex items-center">
-            <span className="text-sm">{phoneNumber}</span>
-            <button onClick={() => setShowEditPhone(true)} className="ml-2 text-white">
-              <Edit size={14} />
+            <span className="text-sm">{user.mobile}</span>
+            <button onClick={() => setShowEditPhone( true )} className="ml-2 text-white">
+              {user.isVerified ? <VerifiedIcon/> :<span className="flex items-center gap-2">Verify number <Edit size={14} /></span>} 
             </button>
           </div>
         </div>
@@ -116,12 +186,12 @@ export default function ProfilePage() {
       {showEditPhone && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg p-6 w-full max-w-md text-gray-800">
-            <h3 className="font-bold text-lg mb-4">Update Phone Number</h3>
-            <form onSubmit={handlePhoneSubmit}>
+            <h3 className="font-bold text-lg mb-4">Enter Phone Number</h3>
+            <form onSubmit={(e)=>handlePhoneSubmit(e,phoneNumber)}>
               <input
                 type="tel"
-                value={newPhoneNumber}
-                onChange={(e) => setNewPhoneNumber(e.target.value)}
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
                 placeholder="Enter new phone number"
                 className="w-full p-2 border border-gray-300 rounded mb-4"
               />
@@ -130,13 +200,39 @@ export default function ProfilePage() {
                   Cancel
                 </button>
                 <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded">
-                  Save
+                  Next
                 </button>
               </div>
             </form>
           </div>
         </div>
       )}
+
+      {/* Verify OTP modal */}
+      {showVerifyOtp && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-lg p-6 w-full max-w-md text-gray-800">
+          <h3 className="font-bold text-lg mb-4">Enter OTP</h3>
+          <form onSubmit={(e)=>handleVerifyNumber(e,phoneNumber,OTP)}>
+            <input
+              type="tel"
+              value={OTP}
+              onChange={(e) => SetOTP(e.target.value)}
+              placeholder="Enter new phone number"
+              className="w-full p-2 border border-gray-300 rounded mb-4"
+            />
+            <div className="flex justify-end gap-2">
+              <button type="button" onClick={() => setShowVerifyOtp(false)} className="px-4 py-2 bg-gray-200 rounded">
+                Cancel
+              </button>
+              <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded">
+                Submit
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    )}
 
       {/* Add Money modal */}
       {showAddMoney && (
@@ -193,10 +289,7 @@ export default function ProfilePage() {
               className="bg-blue-600 hover:bg-blue-700 rounded-full p-2 flex items-center"
             >
               <span className="mr-1">+</span>
-              <span className="hidden sm:inline">Add Money</span>
-            </button>
-            <button className="bg-blue-600 rounded-full p-2">
-              <ChevronRight />
+              <span className="">Add Money</span>
             </button>
           </div>
         </div>

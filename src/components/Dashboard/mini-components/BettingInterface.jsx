@@ -1,124 +1,179 @@
-import { useContext, useEffect, useState } from 'react'
-import { UserContext } from '../../../Context/UserContext'
-// import { toast } from 'react-toastify'
-import Navbar from '../Navbar/Navbar'
-import MatchTabs from './MatchTabs'
-import PlayerCard from './PlayerCard'
-import Teamcard from './Teamcard'
+import { useContext, useEffect, useState } from "react";
+import { UserContext } from "../../../Context/UserContext";
+import Navbar from "../Navbar/Navbar";
+import PlayerCard from "./PlayerCard";
+import Teamcard from "./Teamcard";
 
 const BettingInterface = () => {
-  const { 
-    // eslint-disable-next-line no-unused-vars
-    matchData: contextMatchData, 
-    scoreData, 
-    selectedMatch, 
-    startAutoPolling 
+  const {
+    matchData: contextMatchData,
+    scoreData,
+    selectedMatch,
   } = useContext(UserContext);
 
-  // Local state to manage match data
-  const [matchData, setMatchData] = useState(scoreData || 
-    JSON.parse(localStorage.getItem('MatchData') || "{}"));
-     // eslint-disable-next-line no-unused-vars
-  const [currentMatch, setCurrentMatch] = useState(
-    selectedMatch || JSON.parse(localStorage.getItem("SelectedMatch") || "{}"));
+  const [statusMessage, setStatusMessage] = useState("Loading...");
 
-  // Auto-start polling when component mounts
-  useEffect(() => {
-    if (currentMatch && currentMatch.matchId) {
-      startAutoPolling(currentMatch);
-    }
-  }, [currentMatch, startAutoPolling]);
-
-  // Update local state when context data changes
-  useEffect(() => {
-    if (scoreData) {
+  const loadMatchData = () => {
+    if (scoreData && Object.keys(scoreData).length > 0) {
       setMatchData(scoreData);
-      localStorage.setItem('MatchData', JSON.stringify(scoreData));
+      localStorage.setItem("MatchData", JSON.stringify(scoreData));
+    } else {
+      const storedMatchData = localStorage.getItem("MatchData");
+      if (storedMatchData) {
+        setMatchData(JSON.parse(storedMatchData));
+      }
     }
+  };
+
+  useEffect(() => {
+    loadMatchData();
   }, [scoreData]);
 
-  // Prevent rendering if no match data
-  if (!currentMatch || !matchData?.matchScore) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <p>Loading match data...</p>
-      </div>
-    );
-  }
+  // Local state to manage match data
+  const [matchData, setMatchData] = useState(
+    JSON.parse(localStorage.getItem("MatchData") || "{}")
+  );
+  // eslint-disable-next-line no-unused-vars
+  const [currentMatch, setCurrentMatch] = useState(
+    selectedMatch || JSON.parse(localStorage.getItem("SelectedMatch") || "{}")
+  );
 
+  // console.log(matchData);
   // Get the latest innings data
-  const currentInnings = matchData?.matchScore?.innings?.[matchData.matchScore.innings.length - 1];
-  const previousInnings = matchData?.matchScore?.innings?.[matchData.matchScore.innings.length - 2];
+  const innings = matchData?.innings || [];
+  const currentInnings = innings.length === 2 ? innings[1] : innings[0];
+  const previousInnings = innings.length === 2 ? innings[0] : null;
+  const batsmenData = currentInnings?.batsmen || [];
 
-  // Transform the data for teams display
+  // console.log(currentInnings);
+
+  // Extract team names
   const teams = [
     {
       id: 1,
-      name: currentMatch?.team1,
-      score: matchData.matchScore?.innings?.find(inn => inn.batTeamName === currentMatch.team1)
-        ? `${matchData.matchScore.innings.find(inn => inn.batTeamName === currentMatch.team1).score}/
-           ${matchData.matchScore.innings.find(inn => inn.batTeamName === currentMatch.team1).wickets}`
+      name: currentInnings?.batTeamName || "Team 1",
+      score: currentInnings?.score
+        ? `${currentInnings.score}/${currentInnings.wickets?.length || 0}`
         : "Yet to bat",
-      percentage: matchData.matchScore?.innings?.find(inn => inn.batTeamName === currentMatch.team1)?.runRate || "0.00",
+      percentage: currentInnings?.runRate || "0.00",
       graphData: Array.from({ length: 20 }, (_, i) => i + 1),
       color: "green",
     },
     {
       id: 2,
-      name: currentMatch?.team2,
-      score: matchData.matchScore?.innings?.find(inn => inn.batTeamName === currentMatch.team2)
-        ? `${matchData.matchScore.innings.find(inn => inn.batTeamName === currentMatch.team2).score}/
-           ${matchData.matchScore.innings.find(inn => inn.batTeamName === currentMatch.team2).wickets}`
-        : "Yet to bat",
-      percentage: matchData.matchScore?.innings?.find(inn => inn.batTeamName === currentMatch.team2)?.runRate || "0.00",
+      name: currentInnings?.bowlTeamName || "Team 2",
+      score: "Bowling",
+      percentage: "N/A",
       graphData: Array.from({ length: 20 }, (_, i) => i + 1),
       color: "yellow",
-    }
+    },
   ];
 
-  // Transform batsmen data for player cards
-  const players = currentInnings?.batsmen?.map((batsman) => ({
-    id: batsman.id,
-    name: batsman.name || batsman.nickName,
-    team: currentInnings.batTeamName,
-    teamColor: currentInnings.batTeamName === currentMatch.team1 ? "orange" : "red",
-    price: batsman.runs || 0,
-    score: batsman.runs || 0,
-    currentPrice: `${batsman.runs || 0}/${batsman.balls || 0}`,
-    maxProfit: `${batsman.fours || 0}x4 ${batsman.sixes || 0}x6`,
-    Fours: batsman.fours,
-    Sixes: batsman.sixes,
-    balls: batsman.balls,
-    progress: Math.min(100, (batsman.runs / (batsman.balls || 1)) * 100),
-    strikeRate: batsman.strkRate || "0.00",
-    status: batsman.outDec,
-    isCaptain: batsman.isCaptain,
-    isKeeper: batsman.isKeeper,
-  })) || [];
 
-  
+  // Map batsmen data
+  const players = batsmenData.map((batsman, index) => {
+    // Set initial price based on player index
+    let initialPrice = 25; // Default price for most players
+    if (index < 4) {
+      initialPrice = 35; // First 4 players
+    } else if (index < 7) {
+      initialPrice = 30; // Next 3 players
+    }
+
+    return {
+      id: batsman.id,
+      name: batsman.name || batsman.nickName,
+      team: currentInnings.batTeamName,
+      STeamName: currentInnings.batTeamSName,
+      teamColor: currentInnings.batTeamName === teams[0].name ? "orange" : "red",
+      price: initialPrice,
+      score: batsman.runs || 0,
+      Fours: batsman.fours || 0,
+      Sixes: batsman.sixes || 0,
+      balls: batsman.balls || 0,
+      dots: batsman.dots || 0,
+      ones: batsman.ones || 0,
+      twos: batsman.twos || 0,
+      threes: batsman.threes || 0,
+      boundaries: batsman.boundaries || 0,
+      average: batsman.avg || "0.00",
+      progress: Math.min(100, (batsman.runs / (batsman.balls || 1)) * 100),
+      strikeRate: batsman.strikeRate || "0.00",
+      status: batsman.outDesc || "Not Out",
+      isCaptain: batsman.isCaptain,
+      isKeeper: batsman.isKeeper,
+      wicketCode:batsman.wicketCode
+    };
+  });
+
+
+  useEffect(() => {
+    if (!matchData?.status) {
+      setStatusMessage("Match is not started Yet");
+      return;
+    }
+
+
+    // Create a proper Date object from timestamp
+    // Keep this as a Date object (don't convert to string)
+    const matchStartTime = new Date(currentMatch.startDate);
+
+    const currentTime = new Date();
+    console.log("Current time:", currentTime);
+    console.log("Match start time:", matchStartTime);
+
+    // For display purposes only (not for comparison)
+    const formattedStartTime = matchStartTime.toLocaleString();
+    console.log("Formatted match start time:", formattedStartTime); // 4/7/2025, 7:30:00 PM
+
+    const timeDiffInMinutes = (currentTime - matchStartTime) / (1000 * 60);
+    console.log("Time difference in minutes:", timeDiffInMinutes);
+
+    if (currentTime < matchStartTime) {
+      setStatusMessage(`Match starts at ${formattedStartTime}`);
+    } else if (
+      currentTime > matchStartTime &&
+      (!matchData?.innings || matchData?.innings?.length === 0) &&
+      timeDiffInMinutes > 5
+    ) {
+      setStatusMessage("Match is Cancelled");
+    } else if (
+      currentTime > matchStartTime &&
+      matchData?.isMatchComplete === true
+    ) {
+      setStatusMessage("Match is Completed");
+    } else if (currentTime > matchStartTime && matchData.status=="Innings Break") {
+      setStatusMessage("Innings Break");
+    }else if (currentTime > matchStartTime ) {
+      setStatusMessage("LIVE");
+    }
+  }, [matchData]);
 
   return (
     <>
       <Navbar />
-      
+
       <div className="max-w-md mx-auto ms:mx-0 md:max-w-full px-4 py-6">
         <div className="mb-6">
           <div className="relative mb-2">
             <span className="absolute top-[-40px] left-1/2 transform -translate-x-1/2 bg-red-600 text-white text-xs px-3 py-1 rounded-md">
-              {matchData.matchScore?.status || "LIVE"}
+              {/* {statusMessage} */}
+              {matchData.status}
             </span>
           </div>
           <h1 className="text-center text-xl md:text-2xl font-bold mt-6">
             {currentMatch.team1} vs {currentMatch.team2}
           </h1>
           <p className="text-center text-gray-400 mt-2">
-            {currentInnings?.overs} overs | RR: {currentInnings?.runRate}
+            Current Innings : {currentInnings?.batTeamName} -{" "}
+            {currentInnings?.score}/{currentInnings?.wickets?.length || 0}(
+            {currentInnings?.overs} ov, RR: {currentInnings?.runRate})
           </p>
           {previousInnings && (
             <p className="text-center text-gray-400 mt-1">
-              Previous Innings: {previousInnings.batTeamName} - {previousInnings.score}/{previousInnings.wickets} 
-              ({previousInnings.overs} ov, RR: {previousInnings.runRate})
+              Previous Innings: {previousInnings.batTeamName} -{" "}
+              {previousInnings.score}/{previousInnings.wickets?.length || 0}(
+              {previousInnings.overs} ov, RR: {previousInnings.runRate})
             </p>
           )}
         </div>
@@ -129,35 +184,75 @@ const BettingInterface = () => {
           ))}
         </div>
 
-        {/* <MatchTabs matches={matches} /> */}
-
         <div className="mt-8">
           <h2 className="text-xl font-bold mb-4">
             Current Batting: {currentInnings?.batTeamName}
           </h2>
-          <div className="space-y-4">
-            {players.map((player) => (
-              <PlayerCard key={player.id} player={player} />
-            ))}
-          </div>
-        </div>
-
-        {currentInnings?.partnership?.length > 0 && (
-          <div className="mt-6">
-            <h3 className="text-lg font-semibold mb-2">Current Partnership</h3>
-            <div className="bg-gray-800 p-4 rounded-lg">
-              <p>
-                {currentInnings.partnership[currentInnings.partnership.length - 1].bat1Name} - 
-                {currentInnings.partnership[currentInnings.partnership.length - 1].bat1Runs} & 
-                {currentInnings.partnership[currentInnings.partnership.length - 1].bat2Name} - 
-                {currentInnings.partnership[currentInnings.partnership.length - 1].bat2Runs}
-                <br />
-                Total: {currentInnings.partnership[currentInnings.partnership.length - 1].totalRuns} runs
-                ({currentInnings.partnership[currentInnings.partnership.length - 1].totalBalls} balls)
-              </p>
+          {players?.length > 0 || matchData?.matchScore ? (
+            <div className="space-y-4">
+              {players.map((player, index) => (
+                <PlayerCard key={player.id} player={player} index={index} />
+              ))}
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="space-y-4">
+              {[1, 2, 3, 4, 5].map((dummy) => (
+                <div
+                  className="bg-gray-900 rounded-lg p-4 cursor-pointer"
+                  key={dummy}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 bg-gray-400 rounded-full mr-3"></div>
+                      <div>
+                        <div className="flex items-center font-semibold">-</div>
+                        <div className="text-sm flex items-center">
+                          <span className="text-gray-400">| -</span>{" "}
+                          <span
+                            className={`ml-2 px-2 py-0.5 text-xs rounded-full bg-green-500 text-white`}
+                          >
+                            playing
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-xs text-gray-400">Price</div>
+                      <div className="text-2xl font-bold">100</div>
+                    </div>
+                  </div>
+
+                  <div className="mt-2">
+                    <div className="flex justify-between text-xs mb-1">
+                      <span>0</span>
+                      <span>100</span>
+                    </div>
+                    <div className="w-full bg-gray-800 h-2 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-green-500"
+                        style={{ width: `${dummy * 10}%` }}
+                      ></div>
+                    </div>
+                    <div className="flex justify-between mt-2 text-sm">
+                      <div>
+                        <span className="text-green-500 ">
+                          <span className="text-white">Dots: 13</span>
+                          &nbsp;|&nbsp;
+                          <span className="text-white">Fours: 5</span>
+                          &nbsp;|&nbsp;
+                          <span className="text-white">Sixes: 3</span>
+                        </span>
+                      </div>
+                      <div>
+                        Runs: <span className="text-green-500">120</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </>
   );

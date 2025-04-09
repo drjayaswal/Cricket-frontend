@@ -1,15 +1,19 @@
-import { createContext, useEffect, useState, useRef, useCallback } from "react";
+import { createContext, useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { io } from "socket.io-client";
 // Create Context
 export const UserContext = createContext();
 
 // Provider Component
 export const UserProvider = ({ children }) => {
   const BACKEND_URL = "http://localhost:5001";
+  const socket = useRef(null);
+
+
 
   // SignUp related states
-  const [Name,setuserName] = useState("")
+  const [user, setUser] = useState(null);
   const [SignupPhone, setSignupPhone] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [LoginPhone, setLoginPhone] = useState("");
@@ -21,14 +25,14 @@ export const UserProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedMatch, setSelectedMatch] = useState(null);
-  const [scoreData, setScoreData] = useState(null);
+  const [scoreData, setScoreData] = useState({});
   const [seriesMatchData, setSeriesMatchData] = useState(null);
-  const pollingIntervalRef = useRef(null);
+  // const pollingIntervalRef = useRef(null);
 
   // Authentication Methods
-  const sendOtp = async (Name,phonenumber) => {
+  const sendOtp = async (Name, phonenumber) => {
     const response = await axios.post(`${BACKEND_URL}/auth/send-otp`, {
-      name:Name,
+      name: Name,
       mobile: phonenumber,
     });
     return response.data;
@@ -121,49 +125,32 @@ export const UserProvider = ({ children }) => {
     localStorage.removeItem("token");
   };
 
-
-  // Fetch and store all series in the database in every 24hours
-  useEffect(() => {
-    const fetchSeries = async () => {
-      try {
-        const response = await axios.get(`${BACKEND_URL}/series/all-series`);
-        console.log(response);
-      } catch (error) {
-        console.error("Error fetching and storing series:", error);
-      }
-    };
-
-    fetchSeries(); // Call immediately when component mounts
-
-    const intervalId = setInterval(fetchSeries, 24 * 60 * 60 * 1000); // 24 hours
-
-    return () => clearInterval(intervalId); // Cleanup on unmount
-  }, []);
-
-
-
   // Fetch Matches with improved error handling and live match selection
   const fetchMatches = async () => {
     try {
       setIsLoading(true);
-      const response = await axios.get(`${BACKEND_URL}/matches/all-stored-matches`);
+      const response = await axios.get(
+        `${BACKEND_URL}/matches/all-stored-matches`
+      );
 
-      const extractedMatches = response.data?.matches?.flatMap(
-        (series) =>
-          series.matchScheduleList?.flatMap(
-            (schedule) =>
-              schedule.matchInfo?.map((match) => ({
-                matchId: match.matchId || null,
-                seriesName: schedule.seriesName || "Series Not Available",
-                format: match.matchFormat || "Format Not Available",
-                team1: match.team1?.teamName || "Team 1",
-                team2: match.team2?.teamName || "Team 2",
-                startDate: match.startDate ? Number(match.startDate) : null,
-                venue: match.venueInfo?.ground || "Venue Not Available",
-              })) || []
-          ) || []
-      ) || [];
-      
+      const extractedMatches =
+        response.data?.matches?.flatMap(
+          (series) =>
+            series.matchScheduleList?.flatMap(
+              (schedule) =>
+                schedule.matchInfo?.map((match) => ({
+                  matchId: match.matchId || null,
+                  seriesName: schedule.seriesName || "Series Not Available",
+                  format: match.matchFormat || "Format Not Available",
+                  team1: match.team1?.teamName || "Team 1",
+                  team2: match.team2?.teamName || "Team 2",
+                  startDate: match.startDate ? Number(match.startDate) : null,
+                  venue: match.venueInfo?.ground || "Venue Not Available",
+                  isMatchComplete: match.isMatchComplete
+                })) || []
+            ) || []
+        ) || [];
+
       // Filter today's live matches
       const today = new Date();
       const todayMatches = extractedMatches.filter((match) => {
@@ -179,22 +166,25 @@ export const UserProvider = ({ children }) => {
 
       setMatchData(todayMatches);
 
-      // Organize matches by series
+      // Organize matches by series - only include present and future T20/IPL matches
+      const currentTime = new Date().getTime();
       const matchesBySeries = extractedMatches.reduce((acc, match) => {
-        if (!acc[match.seriesName]) {
-          acc[match.seriesName] = [];
+        // Only include T20 or IPL matches that haven't started yet or are ongoing
+        if (
+          match.startDate &&
+          match.startDate >= currentTime &&
+          (match.format === "T20" || match.seriesName.includes("IPL"))
+        ) {
+          if (!acc[match.seriesName]) {
+            acc[match.seriesName] = [];
+          }
+          acc[match.seriesName].push(match);
         }
-        acc[match.seriesName].push(match);
         return acc;
       }, {});
       setSeriesMatchData(matchesBySeries);
 
       setIsLoading(false);
-
-      // Automatically start polling for the first match if exists
-      if (todayMatches.length > 0) {
-        startAutoPolling(todayMatches[0]);
-      }
     } catch (error) {
       console.error("Failed to fetch matches:", error);
       setError(error.message);
@@ -202,66 +192,104 @@ export const UserProvider = ({ children }) => {
       toast.error("Failed to fetch matches. Please check your connection.");
     }
   };
+
+
+  useEffect(() => {
+    const connectSocket = () => {
+      socket.current = io(BACKEND_URL, {
+        reconnection: true,
+        reconnectionAttempts: 5,
+        reconnectionDelay: 1000,
+        reconnectionDelayMax: 5000,
+        timeout: 20000,
+      });
   
-
-  // Optimized score fetching with error handling
-  const fetchScoreData = useCallback(async (match) => {
-    if (!match || !match.matchId) return;
-
-    try {
-      const response = await axios.get(
-        `${BACKEND_URL}/match-scores/${match.matchId}`
-      );
-
-      // Update local storage and state
-      const newScoreData = response.data;
-      setScoreData(newScoreData);
-      localStorage.setItem("MatchData", JSON.stringify(newScoreData));
-      localStorage.setItem("SelectedMatch", JSON.stringify(match));
-
-      // Stop polling if match is complete
-      if (newScoreData.matchScore?.isMatchComplete) {
-        stopAutoPolling();
-        toast.info("Match completed!");
+      socket.current.on("connect", () => {
+        console.log("Connected to WebSocket server");
+  
+        const savedMatch = localStorage.getItem("SelectedMatch");
+        if (savedMatch) {
+          try {
+            const matchData = JSON.parse(savedMatch);
+            if (matchData && matchData.matchId) {
+              console.log("Auto-resubscribing to match:", matchData.matchId);
+              socket.current.emit("subscribeMatch", matchData);
+              setSelectedMatch(matchData);
+  
+              const savedScoreData = localStorage.getItem("MatchData");
+              if (savedScoreData) {
+                setScoreData(JSON.parse(savedScoreData));
+              }
+            }
+          } catch (e) {
+            console.error("Error parsing saved match data:", e);
+          }
+        }
+      });
+  
+      socket.current.on("connect_error", (error) => {
+        console.error("Socket connection error:", error);
+        toast.error("Connection error. Retrying...");
+      });
+  
+      socket.current.on("disconnect", (reason) => {
+        console.log("Disconnected from WebSocket server:", reason);
+        if (reason === "io server disconnect") {
+          socket.current.connect();
+        }
+      });
+  
+      socket.current.on("scoreUpdate", (data) => {
+        // console.log("Received live score update:", data);
+        setScoreData((prev) => ({ ...prev, ...data }));
+        localStorage.setItem("MatchData", JSON.stringify(data));
+      });
+    };
+  
+    connectSocket();
+  
+    // Detect browser back/forward navigation and manual URL changes
+      if (window.location.pathname !== "/betting-interface") {
+        const savedMatch = localStorage.getItem("SelectedMatch");
+        if (savedMatch && socket.current) {
+          try {
+            const matchData = JSON.parse(savedMatch);
+            if (matchData?.matchId) {
+              console.log("User navigated away. Unsubscribing:", matchData.matchId);
+              socket.current.emit("unsubscribeMatch", matchData.matchId);
+              localStorage.removeItem("SelectedMatch");
+            }
+          } catch (e) {
+            console.error("Error unsubscribing on popstate:", e);
+          }
+        }
       }
-    } catch (error) {
-      console.error("Failed to fetch score:", error);
-      // toast.error("Failed to fetch live score. Retrying...");
-    }
+  
+  
+    return () => {
+  
+      if (socket.current) {
+        socket.current.disconnect();
+      }
+    };
   }, []);
-
-  // Start automatic polling
-  const startAutoPolling = useCallback((match) => {
-    // Clear any existing interval
-    stopAutoPolling();
-
-    // Set selected match
-    setSelectedMatch(match);
-    localStorage.setItem("SelectedMatch", JSON.stringify(match));
-
-    // Initial fetch
-    fetchScoreData(match);
-
-    // Start polling interval
-    pollingIntervalRef.current = setInterval(() => {
-      fetchScoreData(match);
-    }, 1500); // 1.5 seconds interval
-  }, [fetchScoreData]);
-
-  // Stop automatic polling
-  const stopAutoPolling = useCallback(() => {
-    if (pollingIntervalRef.current) {
-      clearInterval(pollingIntervalRef.current);
-      pollingIntervalRef.current = null;
-    }
-  }, []);
+  
+  // console.log(matchData);
+  
+  
 
   // Manually select and start polling for a specific match
   const handleGetScore = async (match) => {
+     // If already subscribed to a match, unsubscribe first
+     if (selectedMatch && selectedMatch.matchId) {
+      socket.current.emit("unsubscribeMatch", selectedMatch.matchId);
+    }
+    
     setSelectedMatch(match);
-    await fetchScoreData(match);
-    startAutoPolling(match);
     localStorage.setItem("SelectedMatch", JSON.stringify(match));
+
+    // Subscribe to live score updates for the new match
+    socket.current.emit("subscribeMatch", match);
     toast.info(`Selected Match: ${match.team1} vs ${match.team2}`);
     window.location.href = "/betting-interface";
   };
@@ -272,7 +300,7 @@ export const UserProvider = ({ children }) => {
 
     // Cleanup function
     return () => {
-      stopAutoPolling();
+      // Cleanup code here
     };
   }, []);
 
@@ -289,12 +317,231 @@ export const UserProvider = ({ children }) => {
       : "Date Not Available";
   };
 
+  const fetchUserData = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        console.log("No token found, user not logged in");
+        return;
+      }
+
+      const response = await fetch(`${BACKEND_URL}/auth/user`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch user data");
+      }
+
+      const data = await response.json();
+
+      setUser(data.user);
+
+      localStorage.setItem("user", JSON.stringify(data.user));
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  };
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser)); // Load user from localStorage if available
+    } else {
+      fetchUserData(); // Fetch user details if not in localStorage
+      return;
+    }
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      fetchUserData();
+    }
+  }, [user]);
+
+  const uploadImage = async (file) => {
+    const formData = new FormData();
+    formData.append("image", file);
+
+    try {
+      const token = localStorage.getItem("token"); // Get user token
+      const response = await fetch("http://localhost:5001/api/upload-profile", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`, // Send token for authentication
+        },
+        body: formData,
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        console.log("Profile Updated:", data.user);
+        setUser(data.user); // Update user state with new image
+      } else {
+        throw new Error(data.message || "Profile update failed");
+      }
+    } catch (error) {
+      console.error("Error uploading profile image:", error);
+    }
+  };
+
+
+  // For the user who logged in using Google SignIn
+
+  const VerifyMobile = async (mobile) => {
+    try {
+      const token = localStorage.getItem("token"); // Get user token
+      const response = await fetch(`${BACKEND_URL}/auth/verify-mobile`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ mobile }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to send OTP");
+      }
+
+      const data = await response.json();
+      toast.success(data?.message);
+    } catch (error) {
+      console.error("Error sending otp:", error);
+      toast.error(error.message);
+    }
+  };
+
+  const verifyMobileOtp = async(mobile,otp) => {
+    try {
+      const token = localStorage.getItem("token"); // Get user token
+      const response = await fetch(`${BACKEND_URL}/auth/verify-mobile-otp`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ otp, mobile }),
+      });
+
+      
+      const data = await response.json();
+
+      if (!response.ok) {
+        toast.error(response.message)
+        throw new Error("Failed to verify OTP");
+      }
+
+      console.log("Mobile OTP verified:", data);
+      toast.success(data?.message);
+    } catch (error) {
+      console.error("Error verifying mobile OTP:", error);
+      // toast.error(error.message);
+    }
+  }
+
+  const setPortfolio = async (portfolioData) => {
+    try {
+      const token = localStorage.getItem('token'); 
+      
+      const response = await fetch(`${BACKEND_URL}/portfolio/set-portfolio`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          playerId: portfolioData.playerId,
+          playerName:portfolioData.playerName,
+          team: portfolioData.team,
+          initialPrice:portfolioData.initialPrice,
+          price: portfolioData.price, // Changed from initialPrice
+          quantity: portfolioData.quantity, // Changed from stockBought
+          runs: portfolioData.runs
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to update portfolio');
+      }
+      
+      return data.portfolio;
+    } catch (error) {
+      console.error('Error updating portfolio:', error);
+      throw error;
+    }
+  };
+  
+  // Add a sell function
+  const sellPortfolio = async (sellData) => {
+    try {
+      const token = localStorage.getItem('token'); 
+      
+      const response = await fetch(`${BACKEND_URL}/portfolio/sell-portfolio`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          playerId: sellData.playerId,
+          price: sellData.price,
+          quantity: sellData.quantity,
+          runs: sellData.runs
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to sell stocks');
+      }
+      
+      return data.portfolio;
+    } catch (error) {
+      console.error('Error selling stocks:', error);
+      throw error;
+    }
+  };
+
+  const getPortfolio = async () => {
+    try {
+      const token = localStorage.getItem("token");
+  
+      const response = await fetch(`${BACKEND_URL}/portfolio/get-portfolio`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      const data = await response.json();
+  
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to fetch portfolio");
+      }
+  
+      return data.portfolio;
+    } catch (error) {
+      console.error("Error fetching portfolio:", error);
+      throw error;
+    }
+  };
+  
+  
+
   return (
     <UserContext.Provider
       value={{
         // Authentication methods
-        Name,
-        setuserName,
+        user,
         SignupPhone,
         setSignupPhone,
         OTP,
@@ -323,8 +570,16 @@ export const UserProvider = ({ children }) => {
         seriesMatchData,
         handleGetScore,
         formatDate,
-        startAutoPolling,
-        stopAutoPolling
+
+        // uploadProfileImage
+        uploadImage,
+        VerifyMobile,
+        verifyMobileOtp,
+
+        // portfolio routes
+        setPortfolio,
+        sellPortfolio,
+        getPortfolio,
       }}
     >
       {children}

@@ -1,10 +1,15 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 // import { a } from "react-router-dom";
 import { Menu, X } from "lucide-react"
 import { useNavigate } from "react-router-dom";
+import { UserContext } from "../../../Context/UserContext";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const {user} = useContext(UserContext)
+  // console.log(user);
+  
 
   const navigate = useNavigate()
 
@@ -34,7 +39,7 @@ const Navbar = () => {
         <a href="/live-matches" className="hover:text-blue-500 transition-colors">
           Live Matches
         </a>
-        <a href="/Portfolio" className="hover:text-blue-500 transition-colors">
+        <a href="/portfolio" className="hover:text-blue-500 transition-colors">
           Portfolio
         </a>
         <a href="/wallet" className="hover:text-blue-500 transition-colors">
@@ -52,12 +57,10 @@ const Navbar = () => {
       onClick={(e)=>handleProfile(e)}
       >
         <img
-          src="/placeholder.svg?height=40&width=40"
-          alt="Profile"
-          width={40}
-          height={40}
-          className="object-cover"
-        />
+            src={user.profileImage}
+            alt="Profile"
+            className="w-16 h-12 rounded-full border-2 border-black border-white object-cover"
+          />
       </div>
     </div>
 
@@ -103,7 +106,7 @@ const Navbar = () => {
             </li>
             <li>
               <a
-                href="/Portfolio"
+                href="/portfolio"
                 className="block py-2 text-gray-300 hover:text-blue-500 transition-colors"
                 onClick={toggleMenu}
               >
