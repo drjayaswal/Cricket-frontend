@@ -29,6 +29,10 @@ const BettingInterface = () => {
     loadMatchData();
   }, [scoreData]);
 
+  // console.log(scoreData);
+  
+  
+  
   // Local state to manage match data
   const [matchData, setMatchData] = useState(
     JSON.parse(localStorage.getItem("MatchData") || "{}")
@@ -37,13 +41,14 @@ const BettingInterface = () => {
   const [currentMatch, setCurrentMatch] = useState(
     selectedMatch || JSON.parse(localStorage.getItem("SelectedMatch") || "{}")
   );
-
+  
   // console.log(matchData);
   // Get the latest innings data
   const innings = matchData?.innings || [];
   const currentInnings = innings.length === 2 ? innings[1] : innings[0];
   const previousInnings = innings.length === 2 ? innings[0] : null;
   const batsmenData = currentInnings?.batsmen || [];
+  // console.log(matchData);
 
   // console.log(currentInnings);
 
@@ -114,20 +119,21 @@ const BettingInterface = () => {
     }
 
 
+
     // Create a proper Date object from timestamp
     // Keep this as a Date object (don't convert to string)
     const matchStartTime = new Date(currentMatch.startDate);
 
     const currentTime = new Date();
-    console.log("Current time:", currentTime);
-    console.log("Match start time:", matchStartTime);
+    // console.log("Current time:", currentTime);
+    // console.log("Match start time:", matchStartTime);
 
     // For display purposes only (not for comparison)
     const formattedStartTime = matchStartTime.toLocaleString();
-    console.log("Formatted match start time:", formattedStartTime); // 4/7/2025, 7:30:00 PM
+    // console.log("Formatted match start time:", formattedStartTime); // 4/7/2025, 7:30:00 PM
 
     const timeDiffInMinutes = (currentTime - matchStartTime) / (1000 * 60);
-    console.log("Time difference in minutes:", timeDiffInMinutes);
+    // console.log("Time difference in minutes:", timeDiffInMinutes);
 
     if (currentTime < matchStartTime) {
       setStatusMessage(`Match starts at ${formattedStartTime}`);
@@ -191,7 +197,7 @@ const BettingInterface = () => {
           {players?.length > 0 || matchData?.matchScore ? (
             <div className="space-y-4">
               {players.map((player, index) => (
-                <PlayerCard key={player.id} player={player} index={index} />
+                <PlayerCard key={player.id} player={player} index={index} matchId={scoreData.matchId} />
               ))}
             </div>
           ) : (

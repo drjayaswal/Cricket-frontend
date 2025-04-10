@@ -456,6 +456,7 @@ export const UserProvider = ({ children }) => {
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
+          matchId: portfolioData.MatchId,
           playerId: portfolioData.playerId,
           playerName:portfolioData.playerName,
           team: portfolioData.team,

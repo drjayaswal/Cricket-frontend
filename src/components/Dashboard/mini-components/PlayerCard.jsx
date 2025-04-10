@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { UserContext } from "../../../Context/UserContext";
 import { toast } from "react-toastify";
 
-const PlayerCard = ({ player,index }) => {
+const PlayerCard = ({ player,index ,matchId}) => {
   const [price, setPrice] = useState(player.price);
   const [showActionButtons, setShowActionButtons] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -49,6 +49,7 @@ const PlayerCard = ({ player,index }) => {
   const handleConfirm = async () => {
     const portfolioData = {
       // playerId,team,initialPrice,price,quantity,runs
+      MatchId:matchId,
       playerId: player.id,
       playerName: player.name,
       team: player.team,
