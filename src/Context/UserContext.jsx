@@ -27,7 +27,6 @@ export const UserProvider = ({ children }) => {
   const [selectedMatch, setSelectedMatch] = useState(null);
   const [scoreData, setScoreData] = useState({});
   const [seriesMatchData, setSeriesMatchData] = useState(null);
-  // const pollingIntervalRef = useRef(null);
 
   // Authentication Methods
   const sendOtp = async (Name, phonenumber) => {
@@ -249,7 +248,7 @@ export const UserProvider = ({ children }) => {
     connectSocket();
   
     // Detect browser back/forward navigation and manual URL changes
-      if (window.location.pathname !== "/betting-interface") {
+      if (window.location.pathname !== "/betting-interface" && window.location.pathname !== "/team-stats") {
         const savedMatch = localStorage.getItem("SelectedMatch");
         if (savedMatch && socket.current) {
           try {
@@ -462,8 +461,7 @@ export const UserProvider = ({ children }) => {
           team: portfolioData.team,
           initialPrice:portfolioData.initialPrice,
           price: portfolioData.price, // Changed from initialPrice
-          quantity: portfolioData.quantity, // Changed from stockBought
-          runs: portfolioData.runs
+          quantity: portfolioData.quantity,
         })
       });
       
@@ -495,7 +493,6 @@ export const UserProvider = ({ children }) => {
           playerId: sellData.playerId,
           price: sellData.price,
           quantity: sellData.quantity,
-          runs: sellData.runs
         })
       });
       
@@ -535,7 +532,10 @@ export const UserProvider = ({ children }) => {
       throw error;
     }
   };
+
+
   
+  // console.log(allMatchData);
   
 
   return (
@@ -581,6 +581,7 @@ export const UserProvider = ({ children }) => {
         setPortfolio,
         sellPortfolio,
         getPortfolio,
+
       }}
     >
       {children}

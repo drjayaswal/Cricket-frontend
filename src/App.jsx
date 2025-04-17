@@ -18,6 +18,7 @@ import BettingInterface from "./components/Dashboard/mini-components/BettingInte
 import {ToastContainer} from 'react-toastify'
 import UserProfile from "./components/Dashboard/Profile/UserProfile";
 import Portfolio from "./components/Dashboard/mini-components/Portfolio";
+import Teamstats from "./components/Dashboard/mini-components/Teamstats";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -49,7 +50,8 @@ function App() {
             <Route path="/betting-interface" element={<PrivateRoute><BettingInterface /></PrivateRoute>} />
             <Route path="/live-matches" element={<PrivateRoute><CurrentMatch /></PrivateRoute>} />
             <Route path="/UserProfile" element={<PrivateRoute><UserProfile/></PrivateRoute>}/>
-            <Route path="/portfolio" element={<Portfolio />} />
+            <Route path="/portfolio" element={<PrivateRoute><Portfolio /></PrivateRoute>} />
+            <Route path="/team-stats" element={<PrivateRoute><Teamstats /></PrivateRoute>} />
 
             <Route path="/signup" element={<Signup />} />
             <Route path="/verifyOtp" element={<VerifyOTP />} />

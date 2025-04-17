@@ -11,9 +11,16 @@ const BettingInterface = () => {
     selectedMatch,
   } = useContext(UserContext);
 
+  const [prevTeamPrice, setPrevTeamPrice] = useState(50);
   const [statusMessage, setStatusMessage] = useState("Loading...");
+  const [matchData, setMatchData] = useState(
+    JSON.parse(localStorage.getItem("MatchData") || "{}")
+  );
+  const [currentMatch, setCurrentMatch] = useState(
+    selectedMatch || JSON.parse(localStorage.getItem("SelectedMatch") || "{}")
+  );
 
-  const loadMatchData = () => {
+  useEffect(() => {
     if (scoreData && Object.keys(scoreData).length > 0) {
       setMatchData(scoreData);
       localStorage.setItem("MatchData", JSON.stringify(scoreData));
@@ -23,74 +30,38 @@ const BettingInterface = () => {
         setMatchData(JSON.parse(storedMatchData));
       }
     }
-  };
-
-  useEffect(() => {
-    loadMatchData();
   }, [scoreData]);
 
-  // console.log(scoreData);
-  
-  
-  
-  // Local state to manage match data
-  const [matchData, setMatchData] = useState(
-    JSON.parse(localStorage.getItem("MatchData") || "{}")
-  );
-  // eslint-disable-next-line no-unused-vars
-  const [currentMatch, setCurrentMatch] = useState(
-    selectedMatch || JSON.parse(localStorage.getItem("SelectedMatch") || "{}")
-  );
-  
-  // console.log(matchData);
-  // Get the latest innings data
   const innings = matchData?.innings || [];
   const currentInnings = innings.length === 2 ? innings[1] : innings[0];
   const previousInnings = innings.length === 2 ? innings[0] : null;
   const batsmenData = currentInnings?.batsmen || [];
-  // console.log(matchData);
 
-  // console.log(currentInnings);
+  let teamPrice = 50;
 
-  // Extract team names
-  const teams = [
-    {
-      id: 1,
-      name: currentInnings?.batTeamName || "Team 1",
-      score: currentInnings?.score
-        ? `${currentInnings.score}/${currentInnings.wickets?.length || 0}`
-        : "Yet to bat",
-      percentage: currentInnings?.runRate || "0.00",
-      graphData: Array.from({ length: 20 }, (_, i) => i + 1),
-      color: "green",
-    },
-    {
-      id: 2,
-      name: currentInnings?.bowlTeamName || "Team 2",
-      score: "Bowling",
-      percentage: "N/A",
-      graphData: Array.from({ length: 20 }, (_, i) => i + 1),
-      color: "yellow",
-    },
-  ];
+  if (innings.length === 2 && currentInnings === innings[1]) {
+    const targetScore = innings[0]?.score;
+    if (targetScore >= 220) teamPrice = 70;
+    else if (targetScore >= 200) teamPrice = 65;
+    else if (targetScore >= 180) teamPrice = 60;
+    else if (targetScore >= 160) teamPrice = 55;
+    
+  }
 
-
-  // Map batsmen data
   const players = batsmenData.map((batsman, index) => {
-    // Set initial price based on player index
-    let initialPrice = 25; // Default price for most players
-    if (index < 4) {
-      initialPrice = 35; // First 4 players
-    } else if (index < 7) {
-      initialPrice = 30; // Next 3 players
-    }
+    let initialPrice = 25;
+    if (index < 4) initialPrice = 35;
+    else if (index < 7) initialPrice = 30;
 
     return {
       id: batsman.id,
       name: batsman.name || batsman.nickName,
       team: currentInnings.batTeamName,
       STeamName: currentInnings.batTeamSName,
-      teamColor: currentInnings.batTeamName === teams[0].name ? "orange" : "red",
+      teamColor:
+        currentInnings.batTeamName === (currentInnings?.batTeamName || "")
+          ? "orange"
+          : "red",
       price: initialPrice,
       score: batsman.runs || 0,
       Fours: batsman.fours || 0,
@@ -107,10 +78,22 @@ const BettingInterface = () => {
       status: batsman.outDesc || "Not Out",
       isCaptain: batsman.isCaptain,
       isKeeper: batsman.isKeeper,
-      wicketCode:batsman.wicketCode
+      wicketCode: batsman.wicketCode,
     };
   });
 
+  players.forEach((player) => {
+    teamPrice += player.score * 0.1;
+    if (player.wicketCode && player.wicketCode.toLowerCase() !== "") {
+      teamPrice *= 0.85;
+    }
+  });
+
+  teamPrice = parseFloat(teamPrice.toFixed(2));
+
+  useEffect(() => {
+    setPrevTeamPrice((prev) => teamPrice);
+  }, [teamPrice]);
 
   useEffect(() => {
     if (!matchData?.status) {
@@ -118,22 +101,10 @@ const BettingInterface = () => {
       return;
     }
 
-
-
-    // Create a proper Date object from timestamp
-    // Keep this as a Date object (don't convert to string)
     const matchStartTime = new Date(currentMatch.startDate);
-
     const currentTime = new Date();
-    // console.log("Current time:", currentTime);
-    // console.log("Match start time:", matchStartTime);
-
-    // For display purposes only (not for comparison)
     const formattedStartTime = matchStartTime.toLocaleString();
-    // console.log("Formatted match start time:", formattedStartTime); // 4/7/2025, 7:30:00 PM
-
     const timeDiffInMinutes = (currentTime - matchStartTime) / (1000 * 60);
-    // console.log("Time difference in minutes:", timeDiffInMinutes);
 
     if (currentTime < matchStartTime) {
       setStatusMessage(`Match starts at ${formattedStartTime}`);
@@ -148,38 +119,56 @@ const BettingInterface = () => {
       matchData?.isMatchComplete === true
     ) {
       setStatusMessage("Match is Completed");
-    } else if (currentTime > matchStartTime && matchData.status=="Innings Break") {
+    } else if (
+      currentTime > matchStartTime &&
+      matchData.status === "Innings Break"
+    ) {
       setStatusMessage("Innings Break");
-    }else if (currentTime > matchStartTime ) {
+    } else if (currentTime > matchStartTime) {
       setStatusMessage("LIVE");
     }
   }, [matchData]);
 
+  const teams = [
+    {
+      id: 1,
+      name: currentInnings?.batTeamName || "Team 1",
+      percentage: currentInnings?.runRate || "0.00",
+      price: teamPrice,
+      previousPrice: prevTeamPrice,
+      graphData: Array.from({ length: 20 }, (_, i) => i + 1),
+      color: "green",
+    },
+    {
+      id: 2,
+      name: currentInnings?.bowlTeamName || "Team 2",
+      percentage: "N/A",
+      graphData: Array.from({ length: 20 }, (_, i) => i + 1),
+      color: "yellow",
+    },
+  ];
+
   return (
     <>
       <Navbar />
-
       <div className="max-w-md mx-auto ms:mx-0 md:max-w-full px-4 py-6">
         <div className="mb-6">
           <div className="relative mb-2">
             <span className="absolute top-[-40px] left-1/2 transform -translate-x-1/2 bg-red-600 text-white text-xs px-3 py-1 rounded-md">
-              {/* {statusMessage} */}
-              {matchData.status}
+              {statusMessage !== "Loading..." ? statusMessage : matchData.status}
             </span>
           </div>
           <h1 className="text-center text-xl md:text-2xl font-bold mt-6">
             {currentMatch.team1} vs {currentMatch.team2}
           </h1>
           <p className="text-center text-gray-400 mt-2">
-            Current Innings : {currentInnings?.batTeamName} -{" "}
-            {currentInnings?.score}/{currentInnings?.wickets?.length || 0}(
-            {currentInnings?.overs} ov, RR: {currentInnings?.runRate})
+            Current Innings : {currentInnings?.batTeamName} - {currentInnings?.score}/
+            {currentInnings?.wickets?.length || 0}({currentInnings?.overs} ov, RR: {currentInnings?.runRate})
           </p>
           {previousInnings && (
             <p className="text-center text-gray-400 mt-1">
-              Previous Innings: {previousInnings.batTeamName} -{" "}
-              {previousInnings.score}/{previousInnings.wickets?.length || 0}(
-              {previousInnings.overs} ov, RR: {previousInnings.runRate})
+              Previous Innings: {previousInnings.batTeamName} - {previousInnings.score}/
+              {previousInnings.wickets?.length || 0}({previousInnings.overs} ov, RR: {previousInnings.runRate})
             </p>
           )}
         </div>
@@ -197,7 +186,12 @@ const BettingInterface = () => {
           {players?.length > 0 || matchData?.matchScore ? (
             <div className="space-y-4">
               {players.map((player, index) => (
-                <PlayerCard key={player.id} player={player} index={index} matchId={scoreData.matchId} />
+                <PlayerCard
+                  key={player.id}
+                  player={player}
+                  index={index}
+                  matchId={scoreData?.matchId || currentMatch.matchId}
+                />
               ))}
             </div>
           ) : (
@@ -213,10 +207,8 @@ const BettingInterface = () => {
                       <div>
                         <div className="flex items-center font-semibold">-</div>
                         <div className="text-sm flex items-center">
-                          <span className="text-gray-400">| -</span>{" "}
-                          <span
-                            className={`ml-2 px-2 py-0.5 text-xs rounded-full bg-green-500 text-white`}
-                          >
+                          <span className="text-gray-400">| -</span>
+                          <span className="ml-2 px-2 py-0.5 text-xs rounded-full bg-green-500 text-white">
                             playing
                           </span>
                         </div>

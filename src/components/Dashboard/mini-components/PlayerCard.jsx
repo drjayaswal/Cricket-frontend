@@ -14,35 +14,36 @@ const PlayerCard = ({ player,index ,matchId}) => {
 
   useEffect(() => {
     const newPrice = updatePlayerPrice(player);
-    setPrice(newPrice);
-  }, [player.score, player.dots, player.status, player]);
+    setPrice(newPrice.toFixed(2));
+  }, [player.score, player.dots, player.status, player.wicketCode]);
 
   const handleClick = () => {
     if (player.status == "batting" || player.status == "not out") {
       setShowActionButtons(true);
     }
   };
-
+  
+  
   const handleActionSelect = (action) => {
     setActionType(action);
     setShowModal(true);
     setShowActionButtons(false);
   };
-
+  
+  
   const updatePlayerPrice = (player) => {
     let newPrice = player.price;
 
-    if (player.wicketCode !== "") {
-      newPrice = player.price * 0.7;
-      return newPrice;
-    }
-
     // Increase price by 0.75 per run
     newPrice += player.score * 0.75;
-
+    
     // Decrease price by 0.5 per dot ball
     newPrice -= player.dots * 0.5;
 
+    if (player.wicketCode !== "") {
+      return newPrice * 0.7;
+    }
+    
     return newPrice;
   };
 
@@ -56,7 +57,6 @@ const PlayerCard = ({ player,index ,matchId}) => {
       initialPrice: player.price,
       price,
       quantity: stockCount,
-      runs: player.score,
     };
     setIsLoading(true);
 
