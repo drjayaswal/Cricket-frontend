@@ -9,6 +9,8 @@ import { toast } from "react-toastify";
 const Login = () => {
   const { LoginPhone, setLoginPhone,handleGoogleSuccess } = useContext(UserContext);
 
+  const clientId = import.meta.env.VITE_CLIENT_ID
+
   const navigate = useNavigate();
   const [error, setError] = useState("");
 
@@ -96,7 +98,7 @@ const Login = () => {
               <GoogleIcon className="mr-2 h-5 w-5" />
               <span>Continue with Google</span>
             </button> */}
-            <GoogleOAuthProvider clientId="705501120220-17knjq3r5ci08tr7guusfpfa4ta0pblh.apps.googleusercontent.com">
+            <GoogleOAuthProvider clientId={clientId}>
               <button className="w-full flex justify-start cursor-pointer border-gray-700 p-2 rounded-lg text-xl items-center outline-2 outline-gray-500 text-gray-400">
                 <GoogleLogin
                   onSuccess={handleGoogleSuccess}

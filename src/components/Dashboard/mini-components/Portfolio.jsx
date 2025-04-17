@@ -16,6 +16,8 @@ const Portfolio = () => {
 
     const [isLoading, setIsLoading] = useState(false); //for stock purchase
 
+    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL    
+
   useEffect(() => {
     const fetchPortfolio = async () => {
       try {
@@ -39,7 +41,7 @@ const Portfolio = () => {
     const fetchScores = async () => {
       try {
         const response = await fetch(
-          `http://localhost:5001/match-scores/all-scores`
+          `${BACKEND_URL}/match-scores/all-scores`
         );
         const data = await response.json();
         setAllMatchdata(data.matchScores);
@@ -149,6 +151,7 @@ const Portfolio = () => {
         .filter((tx) => tx.type === "buy")
         .map((tx) => ({ ...tx }))
         .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+        
 
       // Get all sell transactions
       const sells = item.transactions
@@ -220,30 +223,33 @@ const Portfolio = () => {
       });
     });
 
-    // holdings.sort((a, b) => b.latestTimestamp - a.latestTimestamp);
 
-    return holdings.map((h) => (
-      <div
-        key={h.key}
-        className="border p-4 m-2 shadow rounded-lg"
-        onClick={() => handleClick(h)}
-      >
-        <h2 className="font-bold">
-          {h.playerName} ({h.team})
-        </h2>
-        <p>PlayerId : {h.playerId}</p>
-        <p>Buy Price: ₹{h.buyPrice}</p>
-        <p>Current Price: ₹{h.currentPrice.toFixed(2)}</p>
-        <p>Quantity Held: {h.quantity}</p>
-        <p
-          className={`font-semibold ${
-            h.profit >= 0 ? "text-green-600" : "text-red-600"
-          }`}
+    if(holdings.length > 0){
+      return holdings.map((h) => (
+        <div
+          key={h.key}
+          className="border p-4 m-2 shadow rounded-lg"
+          onClick={() => handleClick(h)}
         >
-          P&L: ₹{h.profit} ({h.percentage}%)
-        </p>
-      </div>
-    ));
+          <h2 className="font-bold">
+            {h.playerName} ({h.team})
+          </h2>
+          <p>PlayerId : {h.playerId}</p>
+          <p>Buy Price: ₹{h.buyPrice}</p>
+          <p>Current Price: ₹{h.currentPrice.toFixed(2)}</p>
+          <p>Quantity Held: {h.quantity}</p>
+          <p
+            className={`font-semibold ${
+              h.profit >= 0 ? "text-green-600" : "text-red-600"
+            }`}
+          >
+            P&L: ₹{h.profit} ({h.percentage}%)
+          </p>
+        </div>
+      ));
+    }else{
+      return <h1>No current Holdings</h1>
+    }
   };
 
   const renderSoldPlayers = () => {

@@ -30,7 +30,7 @@ function App() {
       setTimeout(() => {
         setLoading(false);
         sessionStorage.setItem("hasSeenLoader", "true");
-      }, 2000); // Adjust the time as needed
+      }, 4000); // Adjust the time as needed
     } else {
       setLoading(false);
     }
@@ -43,7 +43,7 @@ function App() {
          <Preloader onComplete={() => setLoading(false)} />
         ) : (
           <>
-            <ToastContainer position="top-right" autoClose={3000} />
+            <ToastContainer position="top-right" autoClose={1500} />
           <Router>
           <Routes>
             <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />

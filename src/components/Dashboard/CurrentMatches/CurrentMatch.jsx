@@ -8,9 +8,6 @@ import MatchCard from "./MatchCard";
 export default function CurrentMatch() {
   const { matchData, isLoading, error } = useContext(UserContext);
 
-  
-  
-
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">
