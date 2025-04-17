@@ -7,9 +7,10 @@ import { toast } from "react-toastify";
 
 
 export default function Signup() {
-  const { Name,setuserName,SignupPhone, setSignupPhone, sendOtp, handleGoogleSuccess } =
+  const { SignupPhone, setSignupPhone, sendOtp, handleGoogleSuccess } =
     useContext(UserContext);
   const [error, setError] = useState("");
+  const [Name,setName] = useState("")
 
   const clientId = import.meta.env.VITE_CLIENT_ID
 
@@ -88,7 +89,7 @@ export default function Signup() {
                 className="border-gray-700 cursor-pointer  p-4 rounded-lg text-white outline-2 outline-gray-500 w-full"
                 value={Name}
                 onChange={(e) => {
-                  setuserName(e.target.value);
+                  setName(e.target.value);
                   setError("");
                 }}
               />
