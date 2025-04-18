@@ -492,9 +492,12 @@ export const UserProvider = ({ children }) => {
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
+          matchId: sellData.MatchId,
           playerId: sellData.playerId,
           price: sellData.price,
           quantity: sellData.quantity,
+          autoSold: sellData.autoSold || false,
+          reason: sellData.reason || ''
         })
       });
       

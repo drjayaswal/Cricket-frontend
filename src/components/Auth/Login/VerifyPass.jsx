@@ -113,19 +113,19 @@ const VerifyPass = () => {
           </div>
 
           {/* Divider */}
-          <div className="flex items-center gap-4">
+          {/* <div className="flex items-center gap-4">
             <hr className=" w-[45%]  text-gray-400" />
             <span className=" text-gray-400">OR</span>
             <hr className=" w-[45%]  text-gray-400" />
-          </div>
+          </div> */}
 
           {/* Alternative login methods */}
-          <div className="space-y-6">
+          {/* <div className="space-y-6">
             <button className="w-full flex justify-start cursor-pointer border-gray-700 p-2 rounded-lg text-xl items-center outline-2 outline-gray-500 text-gray-400">
               <GoogleIcon className="mr-2 h-5 w-5" />
               <span>Continue with Google</span>
             </button>
-          </div>
+          </div> */}
 
           {/* Footer */}
           <div className="pt-4 text-center text-md text-gray-300 mt-20">
