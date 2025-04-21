@@ -12,15 +12,15 @@ const Portfolio = () => {
     sellTeamPortfolio,
     getTeamPortfolio,
   } = useContext(UserContext);
-  
+
   // Player portfolio states
   const [portfolio, setPortfolioData] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
   // Team portfolio states
   const [teamPortfolio, setTeamPortfolioData] = useState([]);
   const [teamLoading, setTeamLoading] = useState(true);
-  
+
   // Shared states
   const [allMatchData, setAllMatchdata] = useState([]);
   const [showActionButtons, setShowActionButtons] = useState(false);
@@ -80,7 +80,7 @@ const Portfolio = () => {
         if (portfolio.length > 0) {
           checkAndAutoSellStocks(data.matchScores);
         }
-        
+
         // Process auto-selling for team stocks
         if (teamPortfolio.length > 0) {
           checkAndAutoSellTeamStocks(data.matchScores);
@@ -110,10 +110,14 @@ const Portfolio = () => {
     let calculatedTeamPrice = Number(initialPrice);
     if (innings.length === 2 && currentInnings === innings[1]) {
       const targetScore = innings[0]?.score;
-      if (targetScore >= 220) calculatedTeamPrice = Math.max(calculatedTeamPrice, 70);
-      else if (targetScore >= 200) calculatedTeamPrice = Math.max(calculatedTeamPrice, 65);
-      else if (targetScore >= 180) calculatedTeamPrice = Math.max(calculatedTeamPrice, 60);
-      else if (targetScore >= 160) calculatedTeamPrice = Math.max(calculatedTeamPrice, 55);
+      if (targetScore >= 220)
+        calculatedTeamPrice = Math.max(calculatedTeamPrice, 70);
+      else if (targetScore >= 200)
+        calculatedTeamPrice = Math.max(calculatedTeamPrice, 65);
+      else if (targetScore >= 180)
+        calculatedTeamPrice = Math.max(calculatedTeamPrice, 60);
+      else if (targetScore >= 160)
+        calculatedTeamPrice = Math.max(calculatedTeamPrice, 55);
     }
 
     // Adjust team price based on player performance
@@ -129,20 +133,18 @@ const Portfolio = () => {
 
   // Function to check and auto-sell team stocks based on conditions
   const checkAndAutoSellTeamStocks = async (matchData) => {
-    // Get current team holdings from portfolio
     const currentTeamHoldings = [];
-
+  
     teamPortfolio.forEach((item) => {
       const buys = item.transactions
         .filter((tx) => tx.type === "buy")
         .map((tx) => ({ ...tx }))
         .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-
+  
       const sells = item.transactions
         .filter((tx) => tx.type === "sell")
         .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-
-      // FIFO Sell matching to determine remaining stocks
+  
       for (let sell of sells) {
         let qtyToSell = sell.quantity;
         while (qtyToSell > 0 && buys.length > 0) {
@@ -153,13 +155,12 @@ const Portfolio = () => {
           if (buy.quantity === 0) buys.shift();
         }
       }
-
-      // Count remaining buys
+  
       const remainingStocks = buys.reduce(
         (total, buy) => total + buy.quantity,
         0
       );
-
+  
       if (remainingStocks > 0) {
         currentTeamHoldings.push({
           teamId: item.teamId,
@@ -170,32 +171,35 @@ const Portfolio = () => {
         });
       }
     });
-
-    // Check each team holding against match data
+  
     for (const holding of currentTeamHoldings) {
       const match = matchData.find(
         (m) => m.matchId.toString() === holding.matchId.toString()
       );
-
+  
       if (!match) continue;
-
-      // Check if we need to process this match-team combination
+  
       const holdingKey = `team-${holding.matchId}-${holding.teamId}`;
-
-      // Check match status
-      const isMatchCompleted =
-        match.status === "completed" || match.status === "finished";
-
-      // Auto-sell condition for teams
-      const shouldAutoSell = isMatchCompleted;
-
-      // Only process if we should auto-sell and haven't processed this combination yet
+  
+      // Determine if holding team is 1st or 2nd inning team
+      const firstInningTeamId = match.innings?.[0]?.battingTeamId?.toString();
+      const isFirstInningTeam =
+        holding.teamId.toString() === firstInningTeamId;
+  
+      const firstInningsCompleted = match.innings.length >= 2;
+      const isMatchCompleted = match.isMatchCompleted === true;
+  
+      const shouldAutoSell =
+        isMatchCompleted ||
+        (isFirstInningTeam && firstInningsCompleted);
+  
       if (shouldAutoSell && !processedMatches[holdingKey]) {
         try {
-          // Calculate current team price
-          const currentPrice = calculateTeamPrice(match, holding.initialPrice);
-
-          // Prepare sell data
+          const currentPrice = calculateTeamPrice(
+            match,
+            holding.initialPrice
+          );
+  
           const sellData = {
             MatchId: holding.matchId,
             teamId: holding.teamId,
@@ -204,50 +208,50 @@ const Portfolio = () => {
             price: currentPrice,
             quantity: holding.quantity,
             autoSold: true,
-            reason: "match_completed",
+            reason: isMatchCompleted
+              ? "match_completed"
+              : "innings_completed",
           };
-
-          // Execute sell
+  
           await sellTeamPortfolio(sellData);
-
-          // Show toast notification
+  
           toast.info(
-            `Auto-sold ${holding.quantity} team stock(s) of ${holding.teamName} - Reason: Match completed`
+            `Auto-sold ${holding.quantity} team stock(s) of ${holding.teamName} - Reason: ${sellData.reason}`
           );
-
-          // Mark as processed
+  
           setProcessedMatches((prev) => ({
             ...prev,
             [holdingKey]: true,
           }));
-
-          // Refresh team portfolio
+  
           const updatedTeamPortfolio = await getTeamPortfolio();
           setTeamPortfolioData(updatedTeamPortfolio);
         } catch (error) {
-          console.error(`Auto-sell failed for team ${holding.teamName}:`, error);
+          console.error(
+            `Auto-sell failed for team ${holding.teamName}:`,
+            error
+          );
           toast.error(`Failed to auto-sell ${holding.teamName}'s stocks`);
         }
       }
     }
   };
+  
 
   // Function to check and auto-sell player stocks based on conditions
   const checkAndAutoSellStocks = async (matchData) => {
-    // Get current holdings from portfolio
     const currentHoldings = [];
-
+  
     portfolio.forEach((item) => {
       const buys = item.transactions
         .filter((tx) => tx.type === "buy")
         .map((tx) => ({ ...tx }))
         .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-
+  
       const sells = item.transactions
         .filter((tx) => tx.type === "sell")
         .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-
-      // FIFO Sell matching to determine remaining stocks
+  
       for (let sell of sells) {
         let qtyToSell = sell.quantity;
         while (qtyToSell > 0 && buys.length > 0) {
@@ -258,13 +262,9 @@ const Portfolio = () => {
           if (buy.quantity === 0) buys.shift();
         }
       }
-
-      // Group remaining buys by player and match
-      const remainingStocks = buys.reduce(
-        (total, buy) => total + buy.quantity,
-        0
-      );
-
+  
+      const remainingStocks = buys.reduce((total, buy) => total + buy.quantity, 0);
+  
       if (remainingStocks > 0) {
         currentHoldings.push({
           playerId: item.playerId,
@@ -276,57 +276,54 @@ const Portfolio = () => {
         });
       }
     });
-
-    // Check each holding against match data
+  
     for (const holding of currentHoldings) {
       const match = matchData.find(
         (m) => m.matchId.toString() === holding.matchId.toString()
       );
-
+  
       if (!match) continue;
-
-      // Check if we need to process this match-player combination
+  
       const holdingKey = `${holding.matchId}-${holding.playerId}`;
-
-      // Check match status
-      const isMatchCompleted =
-        match.status === "completed" || match.status === "finished";
-      const isInningsCompleted =
-        match.innings &&
-        match.innings.some((inn) => inn.status === "completed");
-
-      // Check player status
+      const isMatchCompleted = match.isMatchCompleted === true;
+  
+      // Player status & innings tracking
       let playerOut = false;
       let playerData = null;
-
+      let playerInningsIndex = null;
+  
       if (match.innings) {
-        for (const inning of match.innings) {
+        for (let i = 0; i < match.innings.length; i++) {
+          const inning = match.innings[i];
           const batsmanData = inning.batsmen.find(
             (p) => p.id?.toString() === holding.playerId.toString()
           );
-
+  
           if (batsmanData) {
             playerData = batsmanData;
+            playerInningsIndex = i; // 0 = 1st innings, 1 = 2nd innings
             playerOut = batsmanData.wicketCode !== "";
             break;
           }
         }
       }
-
-      // Auto-sell conditions
+  
+      // Determine if 1st innings is completed (innings length is 2)
+      const isFirstInningsCompleted = match.innings?.length === 2;
+  
+      // Auto-sell logic
       const shouldAutoSell =
-        isMatchCompleted || isInningsCompleted || playerOut;
-
-      // Only process if we should auto-sell and haven't processed this combination yet
+        playerOut ||
+        (playerInningsIndex === 0 && isFirstInningsCompleted) || // Player in 1st innings and it completed
+        (playerInningsIndex === 1 && isMatchCompleted); // Player in 2nd innings and match completed
+  
       if (shouldAutoSell && !processedMatches[holdingKey]) {
         try {
-          // Calculate current price
           const currentPrice = calculateUpdatedPrice(
             playerData,
             holding.initialPrice
           );
-
-          // Prepare sell data
+  
           const sellData = {
             MatchId: holding.matchId,
             playerId: holding.playerId,
@@ -338,26 +335,22 @@ const Portfolio = () => {
             autoSold: true,
             reason: playerOut
               ? "player_out"
-              : isInningsCompleted
-              ? "innings_completed"
+              : playerInningsIndex === 0
+              ? "first_innings_completed"
               : "match_completed",
           };
-
-          // Execute sell
+  
           await sellPortfolio(sellData);
-
-          // Show toast notification
+  
           toast.info(
             `Auto-sold ${holding.quantity} stock(s) of ${holding.playerName} - Reason: ${sellData.reason}`
           );
-
-          // Mark as processed
+  
           setProcessedMatches((prev) => ({
             ...prev,
             [holdingKey]: true,
           }));
-
-          // Refresh portfolio
+  
           const updatedPortfolio = await getPortfolio();
           setPortfolioData(updatedPortfolio);
         } catch (error) {
@@ -367,6 +360,7 @@ const Portfolio = () => {
       }
     }
   };
+  
 
   // Get live player data from match data
   const getLivePlayerData = (playerId, matchId) => {
@@ -472,7 +466,7 @@ const Portfolio = () => {
           autosold: false,
           reason: "soldbyuser",
         };
-        console.log(teamPortfolioData)
+        console.log(teamPortfolioData);
 
         if (actionType === "buy") {
           await setTeamPortfolio(teamPortfolioData);
@@ -751,7 +745,9 @@ const Portfolio = () => {
               }
             }
 
-            return <p className="text-green-500 font-bold">Match In Progress</p>;
+            return (
+              <p className="text-green-500 font-bold">Match In Progress</p>
+            );
           })()}
         </div>
       ));
@@ -931,7 +927,7 @@ const Portfolio = () => {
   // Helper function to format reason text
   const formatReason = (reason) => {
     if (!reason) return "Unknown reason";
-    
+
     switch (reason.toLowerCase()) {
       case "player_out":
         return "Player Out";
@@ -942,7 +938,9 @@ const Portfolio = () => {
       case "soldbyuser":
         return "Sold by User";
       default:
-        return reason.charAt(0).toUpperCase() + reason.slice(1).replace(/_/g, " ");
+        return (
+          reason.charAt(0).toUpperCase() + reason.slice(1).replace(/_/g, " ")
+        );
     }
   };
 
@@ -950,7 +948,7 @@ const Portfolio = () => {
   const calculateTotalValue = () => {
     let totalValue = 0;
     let totalInvestment = 0;
-    
+
     // Calculate player portfolio value
     portfolio.forEach((item) => {
       const buys = item.transactions
@@ -977,13 +975,16 @@ const Portfolio = () => {
         if (buy.quantity <= 0) continue;
 
         const liveStats = getLivePlayerData(item.playerId, item.matchId);
-        const currentPrice = calculateUpdatedPrice(liveStats, item.initialPrice);
-        
+        const currentPrice = calculateUpdatedPrice(
+          liveStats,
+          item.initialPrice
+        );
+
         totalValue += currentPrice * buy.quantity;
         totalInvestment += buy.price * buy.quantity;
       }
     });
-    
+
     // Calculate team portfolio value
     teamPortfolio.forEach((item) => {
       const buys = item.transactions
@@ -1013,22 +1014,23 @@ const Portfolio = () => {
           (m) => m.matchId.toString() === item.matchId.toString()
         );
         const currentPrice = calculateTeamPrice(match, item.initialPrice);
-        
+
         totalValue += currentPrice * buy.quantity;
         totalInvestment += buy.price * buy.quantity;
       }
     });
 
     const totalProfit = totalValue - totalInvestment;
-    const profitPercentage = totalInvestment > 0 
-      ? ((totalProfit / totalInvestment) * 100).toFixed(2) 
-      : 0;
+    const profitPercentage =
+      totalInvestment > 0
+        ? ((totalProfit / totalInvestment) * 100).toFixed(2)
+        : 0;
 
     return {
       totalValue: totalValue.toFixed(2),
       totalInvestment: totalInvestment.toFixed(2),
       totalProfit: totalProfit.toFixed(2),
-      profitPercentage
+      profitPercentage,
     };
   };
 
@@ -1043,10 +1045,11 @@ const Portfolio = () => {
         .filter((tx) => tx.type === "sell")
         .forEach((sell) => {
           // Find corresponding buy transactions (simplified approach)
-          const buyPrice = sell.buyPrice || 
-            item.transactions.find(tx => tx.type === "buy")?.price || 
+          const buyPrice =
+            sell.buyPrice ||
+            item.transactions.find((tx) => tx.type === "buy")?.price ||
             item.initialPrice;
-          
+
           const profit = (sell.price - buyPrice) * sell.quantity;
           totalProfit += profit;
           totalSold += buyPrice * sell.quantity;
@@ -1059,26 +1062,30 @@ const Portfolio = () => {
         .filter((tx) => tx.type === "sell")
         .forEach((sell) => {
           // Find corresponding buy transactions (simplified approach)
-          const buyPrice = sell.buyPrice || 
-            item.transactions.find(tx => tx.type === "buy")?.price || 
+          const buyPrice =
+            sell.buyPrice ||
+            item.transactions.find((tx) => tx.type === "buy")?.price ||
             item.initialPrice;
-          
+
           const profit = (sell.price - buyPrice) * sell.quantity;
           totalProfit += profit;
           totalSold += buyPrice * sell.quantity;
         });
     });
 
-    const percentage = totalSold > 0 ? ((totalProfit / totalSold) * 100).toFixed(2) : 0;
-    
+    const percentage =
+      totalSold > 0 ? ((totalProfit / totalSold) * 100).toFixed(2) : 0;
+
     return {
       totalProfit: totalProfit.toFixed(2),
-      percentage
+      percentage,
     };
   };
 
-  const { totalValue, totalInvestment, totalProfit, profitPercentage } = calculateTotalValue();
-  const { totalProfit: historicalProfit, percentage: historicalPercentage } = calculateHistoricalProfitLoss();
+  const { totalValue, totalInvestment, totalProfit, profitPercentage } =
+    calculateTotalValue();
+  const { totalProfit: historicalProfit, percentage: historicalPercentage } =
+    calculateHistoricalProfitLoss();
 
   // Main rendering
   return (
@@ -1138,7 +1145,9 @@ const Portfolio = () => {
         {/* Content based on active tab */}
         {activeTab === "players" ? (
           <>
-            <h2 className="text-2xl font-semibold mb-4">Current Player Holdings</h2>
+            <h2 className="text-2xl font-semibold mb-4">
+              Current Player Holdings
+            </h2>
             {loading ? (
               <p>Loading player portfolio...</p>
             ) : (
@@ -1146,15 +1155,19 @@ const Portfolio = () => {
                 {renderCurrentHoldings()}
               </div>
             )}
-            
-            <h2 className="text-2xl font-semibold mt-8 mb-4">Sold Players History</h2>
+
+            <h2 className="text-2xl font-semibold mt-8 mb-4">
+              Sold Players History
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {renderSoldPlayers()}
             </div>
           </>
         ) : (
           <>
-            <h2 className="text-2xl font-semibold mb-4">Current Team Holdings</h2>
+            <h2 className="text-2xl font-semibold mb-4">
+              Current Team Holdings
+            </h2>
             {teamLoading ? (
               <p>Loading team portfolio...</p>
             ) : (
@@ -1162,8 +1175,10 @@ const Portfolio = () => {
                 {renderTeamCurrentHoldings()}
               </div>
             )}
-            
-            <h2 className="text-2xl font-semibold mt-8 mb-4">Sold Teams History</h2>
+
+            <h2 className="text-2xl font-semibold mt-8 mb-4">
+              Sold Teams History
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {renderSoldTeams()}
             </div>
@@ -1249,9 +1264,7 @@ const Portfolio = () => {
             <div className="flex justify-between mt-4">
               <button
                 className={`${
-                  actionType === "buy"
-                    ? "bg-green-500"
-                    : "bg-red-500"
+                  actionType === "buy" ? "bg-green-500" : "bg-red-500"
                 } text-white px-4 py-2 rounded`}
                 onClick={handleConfirm}
                 disabled={isLoading}
