@@ -8,11 +8,8 @@ export const UserContext = createContext();
 // Provider Component
 export const UserProvider = ({ children }) => {
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
-  
 
   const socket = useRef(null);
-
-
 
   // SignUp related states
   const [user, setUser] = useState(null);
@@ -27,7 +24,7 @@ export const UserProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedMatch, setSelectedMatch] = useState(null);
-  const [scoreData, setScoreData] = useState({});
+  const [scoreData, setScoreData] = useState(null);
   const [seriesMatchData, setSeriesMatchData] = useState(null);
 
   // Authentication Methods
@@ -147,7 +144,7 @@ export const UserProvider = ({ children }) => {
                   team2: match.team2?.teamName || "Team 2",
                   startDate: match.startDate ? Number(match.startDate) : null,
                   venue: match.venueInfo?.ground || "Venue Not Available",
-                  isMatchComplete: match.isMatchComplete
+                  isMatchComplete: match.isMatchComplete,
                 })) || []
             ) || []
         ) || [];
@@ -194,7 +191,6 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-
   useEffect(() => {
     const connectSocket = () => {
       socket.current = io(BACKEND_URL, {
@@ -204,10 +200,10 @@ export const UserProvider = ({ children }) => {
         reconnectionDelayMax: 5000,
         timeout: 20000,
       });
-  
+
       socket.current.on("connect", () => {
         console.log("Connected to WebSocket server");
-  
+
         const savedMatch = localStorage.getItem("SelectedMatch");
         if (savedMatch) {
           try {
@@ -216,7 +212,7 @@ export const UserProvider = ({ children }) => {
               console.log("Auto-resubscribing to match:", matchData.matchId);
               socket.current.emit("subscribeMatch", matchData);
               setSelectedMatch(matchData);
-  
+
               const savedScoreData = localStorage.getItem("MatchData");
               if (savedScoreData) {
                 setScoreData(JSON.parse(savedScoreData));
@@ -227,65 +223,67 @@ export const UserProvider = ({ children }) => {
           }
         }
       });
-  
+
       socket.current.on("connect_error", (error) => {
         console.error("Socket connection error:", error);
         toast.error("Connection error. Retrying...");
       });
-  
+
       socket.current.on("disconnect", (reason) => {
         console.log("Disconnected from WebSocket server:", reason);
         if (reason === "io server disconnect") {
           socket.current.connect();
         }
       });
-  
+
       socket.current.on("scoreUpdate", (data) => {
         // console.log("Received live score update:", data);
-        setScoreData((prev) => ({ ...prev, ...data }));
+        setScoreData(data);
         localStorage.setItem("MatchData", JSON.stringify(data));
       });
     };
-  
+
     connectSocket();
-  
+
     // Detect browser back/forward navigation and manual URL changes
-      if (window.location.pathname !== "/betting-interface" && window.location.pathname !== "/team-stats") {
-        const savedMatch = localStorage.getItem("SelectedMatch");
-        if (savedMatch && socket.current) {
-          try {
-            const matchData = JSON.parse(savedMatch);
-            if (matchData?.matchId) {
-              console.log("User navigated away. Unsubscribing:", matchData.matchId);
-              socket.current.emit("unsubscribeMatch", matchData.matchId);
-              localStorage.removeItem("SelectedMatch");
-            }
-          } catch (e) {
-            console.error("Error unsubscribing on popstate:", e);
+    if (
+      window.location.pathname !== "/betting-interface" &&
+      window.location.pathname !== "/team-stats"
+    ) {
+      const savedMatch = localStorage.getItem("SelectedMatch");
+      if (savedMatch && socket.current) {
+        try {
+          const matchData = JSON.parse(savedMatch);
+          if (matchData?.matchId) {
+            console.log(
+              "User navigated away. Unsubscribing:",
+              matchData.matchId
+            );
+            socket.current.emit("unsubscribeMatch", matchData.matchId);
+            localStorage.removeItem("SelectedMatch");
           }
+        } catch (e) {
+          console.error("Error unsubscribing on popstate:", e);
         }
       }
-  
-  
+    }
+
     return () => {
-  
       if (socket.current) {
         socket.current.disconnect();
       }
     };
   }, []);
-  
+
   // console.log(matchData);
-  
-  
 
   // Manually select and start polling for a specific match
   const handleGetScore = async (match) => {
-     // If already subscribed to a match, unsubscribe first
-     if (selectedMatch && selectedMatch.matchId) {
+    // If already subscribed to a match, unsubscribe first
+    if (selectedMatch && selectedMatch.matchId) {
       socket.current.emit("unsubscribeMatch", selectedMatch.matchId);
     }
-    
+
     setSelectedMatch(match);
     localStorage.setItem("SelectedMatch", JSON.stringify(match));
 
@@ -391,7 +389,6 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-
   // For the user who logged in using Google SignIn
 
   const VerifyMobile = async (mobile) => {
@@ -418,7 +415,7 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-  const verifyMobileOtp = async(mobile,otp) => {
+  const verifyMobileOtp = async (mobile, otp) => {
     try {
       const token = localStorage.getItem("token"); // Get user token
       const response = await fetch(`${BACKEND_URL}/auth/verify-mobile-otp`, {
@@ -430,11 +427,10 @@ export const UserProvider = ({ children }) => {
         body: JSON.stringify({ otp, mobile }),
       });
 
-      
       const data = await response.json();
 
       if (!response.ok) {
-        toast.error(response.message)
+        toast.error(response.message);
         throw new Error("Failed to verify OTP");
       }
 
@@ -444,52 +440,52 @@ export const UserProvider = ({ children }) => {
       console.error("Error verifying mobile OTP:", error);
       // toast.error(error.message);
     }
-  }
+  };
 
   const setPortfolio = async (portfolioData) => {
     try {
-      const token = localStorage.getItem('token'); 
-      
+      const token = localStorage.getItem("token");
+
       const response = await fetch(`${BACKEND_URL}/portfolio/set-portfolio`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           matchId: portfolioData.MatchId,
           playerId: portfolioData.playerId,
-          playerName:portfolioData.playerName,
+          playerName: portfolioData.playerName,
           team: portfolioData.team,
-          initialPrice:portfolioData.initialPrice,
+          initialPrice: portfolioData.initialPrice,
           price: portfolioData.price, // Changed from initialPrice
           quantity: portfolioData.quantity,
-        })
+        }),
       });
-      
+
       const data = await response.json();
-      
+
       if (!response.ok) {
-        throw new Error(data.message || 'Failed to update portfolio');
+        throw new Error(data.message || "Failed to update portfolio");
       }
-      
+
       return data.portfolio;
     } catch (error) {
-      console.error('Error updating portfolio:', error);
+      console.error("Error updating portfolio:", error);
       throw error;
     }
   };
-  
+
   // Add a sell function
   const sellPortfolio = async (sellData) => {
     try {
-      const token = localStorage.getItem('token'); 
-      
+      const token = localStorage.getItem("token");
+
       const response = await fetch(`${BACKEND_URL}/portfolio/sell-portfolio`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           matchId: sellData.MatchId,
@@ -497,19 +493,19 @@ export const UserProvider = ({ children }) => {
           price: sellData.price,
           quantity: sellData.quantity,
           autoSold: sellData.autoSold || false,
-          reason: sellData.reason || ''
-        })
+          reason: sellData.reason || "",
+        }),
       });
-      
+
       const data = await response.json();
-      
+
       if (!response.ok) {
-        throw new Error(data.message || 'Failed to sell stocks');
+        throw new Error(data.message || "Failed to sell stocks");
       }
-      
+
       return data.portfolio;
     } catch (error) {
-      console.error('Error selling stocks:', error);
+      console.error("Error selling stocks:", error);
       throw error;
     }
   };
@@ -517,20 +513,20 @@ export const UserProvider = ({ children }) => {
   const getPortfolio = async () => {
     try {
       const token = localStorage.getItem("token");
-  
+
       const response = await fetch(`${BACKEND_URL}/portfolio/get-portfolio`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-  
+
       const data = await response.json();
-  
+
       if (!response.ok) {
         throw new Error(data.message || "Failed to fetch portfolio");
       }
-  
+
       return data.portfolio;
     } catch (error) {
       console.error("Error fetching portfolio:", error);
@@ -538,10 +534,106 @@ export const UserProvider = ({ children }) => {
     }
   };
 
+  // Team Portfolio Functions for userContext
 
-  
-  // console.log(allMatchData);
-  
+  const setTeamPortfolio = async (teamPortfolioData) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const response = await fetch(
+        `${BACKEND_URL}/portfolio/set-team-portfolio`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            matchId: teamPortfolioData.MatchId,
+            teamId: teamPortfolioData.teamId,
+            teamName: teamPortfolioData.teamName,
+            initialPrice: teamPortfolioData.initialPrice,
+            price: teamPortfolioData.price,
+            quantity: teamPortfolioData.quantity,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to update team portfolio");
+      }
+
+      return data.teamPortfolio;
+    } catch (error) {
+      console.error("Error updating team portfolio:", error);
+      throw error;
+    }
+  };
+
+  const sellTeamPortfolio = async (sellData) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const response = await fetch(
+        `${BACKEND_URL}/portfolio/sell-team-portfolio`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            matchId: sellData.MatchId,
+            teamId: sellData.teamId,
+            price: sellData.price,
+            quantity: sellData.quantity,
+            autoSold: sellData.autoSold || false,
+            reason: sellData.reason || "",
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to sell team stocks");
+      }
+
+      return data.teamPortfolio;
+    } catch (error) {
+      console.error("Error selling team stocks:", error);
+      throw error;
+    }
+  };
+
+  const getTeamPortfolio = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const response = await fetch(
+        `${BACKEND_URL}/portfolio/get-team-portfolio`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to fetch team portfolio");
+      }
+
+      return data.teamPortfolio;
+    } catch (error) {
+      console.error("Error fetching team portfolio:", error);
+      throw error;
+    }
+  };
 
   return (
     <UserContext.Provider
@@ -587,6 +679,10 @@ export const UserProvider = ({ children }) => {
         sellPortfolio,
         getPortfolio,
 
+        // New team portfolio functions
+        setTeamPortfolio,
+        sellTeamPortfolio,
+        getTeamPortfolio,
       }}
     >
       {children}
