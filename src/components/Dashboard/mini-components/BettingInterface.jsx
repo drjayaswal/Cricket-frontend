@@ -26,14 +26,8 @@ const BettingInterface = () => {
   // Update matchData when new scoreData is received
   useEffect(() => {
     if (scoreData && Object.keys(scoreData).length > 0) {
-      const currentStored = JSON.parse(
-        localStorage.getItem("MatchData") || "{}"
-      );
-
-      if (JSON.stringify(currentStored) !== JSON.stringify(scoreData)) {
-        localStorage.setItem("MatchData", JSON.stringify(scoreData));
-        setMatchData(scoreData);
-      }
+      setMatchData(scoreData);
+      // localStorage.setItem("MatchData", JSON.stringify(scoreData)); // Optional: still store it
     }
   }, [scoreData]);
 
@@ -181,7 +175,7 @@ const BettingInterface = () => {
             <span className="absolute top-[-40px] left-1/2 transform -translate-x-1/2 bg-red-600 text-white text-xs px-3 py-1 rounded-md">
               {statusMessage !== "Loading..."
                 ? statusMessage
-                : matchData.status}
+                : matchData?.status}
             </span>
           </div>
           <h1 className="text-center text-xl md:text-2xl font-bold mt-6">

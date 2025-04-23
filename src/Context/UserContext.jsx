@@ -44,11 +44,10 @@ export const UserProvider = ({ children }) => {
     return response.data;
   };
 
-  const Updatepassword = async (mobile, oldPassword, newPassword) => {
+  const Updatepassword = async (mobile, newPassword) => {
     try {
       const response = await axios.post(`${BACKEND_URL}/auth/change-password`, {
         mobile,
-        oldPassword,
         newPassword,
       });
       return response.data;

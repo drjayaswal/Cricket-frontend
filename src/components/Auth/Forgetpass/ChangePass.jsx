@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const ChangePass = () => {
-  const [showOldPassword, setshowOldPassword] = useState(false);
+  // const [showOldPassword, setshowOldPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [oldPassword, setOldPassword] = useState("");
@@ -31,7 +31,7 @@ const ChangePass = () => {
     e.preventDefault();
     console.log(ForgetPhone);
   
-    if (!oldPassword || !password || !confirmPassword) {
+    if (!password || !confirmPassword) {
       setError("All fields are required.");
       return;
     }
@@ -52,17 +52,14 @@ const ChangePass = () => {
 
   
     try {
-      const response = await Updatepassword(ForgetPhone,oldPassword,password)     
+      const response = await Updatepassword(ForgetPhone,password)     
   
       if (response?.message === "Password changed successfully") {
-        toast.succes("Password changed successfully!");
+        toast.success("Password changed successfully!");
         navigate("/");
       } else if(response?.message === "User not found"){
         toast.info("User not found Go Register first!!!");
         navigate("/signup");
-      }else if(response?.message === "Incorrect old password"){
-        toast.error("Incorrect old password");
-        
       }
     } catch (error) {
       console.error("Error:", error);
@@ -87,24 +84,7 @@ const ChangePass = () => {
           {/* Form */}
           <div className="space-y-10">
             <div className="space-y-6">
-              <div className="relative">
-                <input
-                  type={showOldPassword ? "text" : "password"}
-                  placeholder="Enter Your Old Password*"
-                  className="border-gray-700 cursor-pointer  p-4 rounded-lg text-white outline-2 outline-gray-500 w-full"
-                    value={oldPassword}
-                    onChange={(e) =>  {
-                  setOldPassword(e.target.value);
-                  setError(""); // Clear error on change
-                    }}
-                />
-                <button
-                  className="absolute right-3 top-3 text-blue-500 hover:text-blue-700 font-semibold"
-                  onClick={() => setshowOldPassword(!showOldPassword)}
-                >
-                  {showOldPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}
-                </button>
-              </div>
+              
 
               <div className="relative">
                 <input
