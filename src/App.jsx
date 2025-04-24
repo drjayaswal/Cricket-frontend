@@ -30,7 +30,7 @@ function App() {
       setTimeout(() => {
         setLoading(false);
         sessionStorage.setItem("hasSeenLoader", "true");
-      }, 4000); // Adjust the time as needed
+      }, 4100); // Adjust the time as needed
     } else {
       setLoading(false);
     }
