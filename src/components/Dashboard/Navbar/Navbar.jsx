@@ -3,13 +3,12 @@ import React, { useContext, useState } from "react";
 import { Menu, X } from "lucide-react"
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../../../Context/UserContext";
+import dmdp from "/assets/dmdp.jpg?url";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const {user} = useContext(UserContext)
-  // console.log(user);
-  
 
   const navigate = useNavigate()
 
@@ -57,7 +56,7 @@ const Navbar = () => {
       onClick={(e)=>handleProfile(e)}
       >
         <img
-            src={user.profileImage}
+            src={user.profileImage ? user.profileImage : dmdp}
             alt="Profile"
             className="w-16 h-12 rounded-full border-2 border-white object-cover"
           />

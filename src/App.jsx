@@ -61,6 +61,7 @@ function App() {
             <Route path="/forgot-password" element={<ForgetPass/>}/> 
             <Route path="/forgot-password/verify-password" element={<ForgetVerifyOtp/>}/> 
             <Route path="/forgot-password/changePass" element={<ChangePass/>} />
+            <Route path="/*" element={<>No Such Endpoint</>} />
           </Routes>
         </Router>
           </>

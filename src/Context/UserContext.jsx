@@ -368,7 +368,7 @@ export const UserProvider = ({ children }) => {
 
     try {
       const token = localStorage.getItem("token"); // Get user token
-      const response = await fetch("http://localhost:5001/api/upload-profile", {
+      const response = await fetch(`${BACKEND_URL}/api/upload-profile`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`, // Send token for authentication
@@ -378,8 +378,7 @@ export const UserProvider = ({ children }) => {
 
       const data = await response.json();
       if (response.ok) {
-        console.log("Profile Updated:", data.user);
-        setUser(data.user); // Update user state with new image
+        setUser(data.user);
       } else {
         throw new Error(data.message || "Profile update failed");
       }
