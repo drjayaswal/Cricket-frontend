@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom"
 import CancelIcon from '@mui/icons-material/Cancel';
 import VerifiedIcon from '@mui/icons-material/Verified';
 import { toast } from "react-toastify"
+import Contact from '../StaticComponents/Contact'
 
 
 export default function ProfilePage() {
@@ -27,40 +28,32 @@ export default function ProfilePage() {
 
 
   const handleMenuClick = (menuItem) => {
-    // Handle different menu item clicks
     switch (menuItem) {
       case "My Transaction":
-        alert("Viewing transactions")
-        // Navigate to transactions page or show transactions modal
+        navigate("/transactions")
         break
       case "Withdraw":
-        alert("Opening withdraw interface")
-        // Open withdraw modal or navigate to withdraw page
+        navigate("/withdraw")
         break
       case "KYC Verification":
-        alert("Opening KYC verification")
-        // Navigate to KYC verification page
+        navigate("/kyc")
         break
       case "Invite Friends":
-        alert("Opening invite friends")
-        // Open share dialog or navigate to invite page
+        navigate("/invite")
         break
       case "Terms and Conditions":
-        alert("Opening Terms and Conditions")
-        // Navigate to terms page or open in modal
+        navigate("/terms")
         break
       case "Privacy Policy":
-        alert("Opening Privacy Policy")
-        // Navigate to privacy policy page or open in modal
+        navigate("/privacy")
         break
       case "Contact Us":
-        alert("Opening Contact form")
-        // Navigate to contact page or open contact modal
+        navigate("/contact")
         break
       case "Logout":
         if (confirm("Are you sure you want to logout?")) {
-            logout()
-            navigate("/login")
+          logout()
+          navigate("/login")
         }
         break
       default:
@@ -74,7 +67,7 @@ export default function ProfilePage() {
       toast.error("Please select a file");
       return;
     }
-    if (file.size > 1 * 1024 * 1024) {
+    if (file.size > 2 * 1024 * 1024) {
       toast.error("File size exceeds 2MB");
       return;
     }
