@@ -192,17 +192,47 @@ export const UserProvider = ({ children }) => {
 
   useEffect(() => {
     const connectSocket = () => {
+      // Add auth token and additional options
+      const token = localStorage.getItem('token');
+      
       socket.current = io(BACKEND_URL, {
         reconnection: true,
         reconnectionAttempts: 5,
         reconnectionDelay: 1000,
         reconnectionDelayMax: 5000,
         timeout: 20000,
+        auth: {
+          token
+        },
+        // Add transport options
+        transports: ['websocket', 'polling'],
+        // Add error handling
+        autoConnect: false
+      });
+
+      // Add connection validation
+      socket.current.on('connect_error', (error) => {
+        console.error('Socket connection error:', error);
+        // Check specific error types
+        if (error.message === 'Invalid credentials') {
+          toast.error('Authentication failed. Please login again.');
+        } else {
+          toast.error(`Connection error: ${error.message}. Retrying...`);
+        }
+        // Implement exponential backoff
+        setTimeout(() => {
+          socket.current.connect();
+        }, 5000);
+      });
+
+      // Add connection state handling
+      socket.current.on('connecting', () => {
+        console.log('Attempting to connect...');
       });
 
       socket.current.on("connect", () => {
         console.log("Connected to WebSocket server");
-
+        toast.success('Connected to live updates');
         const savedMatch = localStorage.getItem("SelectedMatch");
         if (savedMatch) {
           try {
@@ -220,18 +250,6 @@ export const UserProvider = ({ children }) => {
           } catch (e) {
             console.error("Error parsing saved match data:", e);
           }
-        }
-      });
-
-      socket.current.on("connect_error", (error) => {
-        console.error("Socket connection error:", error);
-        toast.error("Connection error. Retrying...");
-      });
-
-      socket.current.on("disconnect", (reason) => {
-        console.log("Disconnected from WebSocket server:", reason);
-        if (reason === "io server disconnect") {
-          socket.current.connect();
         }
       });
 
@@ -368,7 +386,7 @@ export const UserProvider = ({ children }) => {
 
     try {
       const token = localStorage.getItem("token"); // Get user token
-      const response = await fetch("http://localhost:5001/api/upload-profile", {
+      const response = await fetch(`${BACKEND_URL}/api/upload-profile`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`, // Send token for authentication

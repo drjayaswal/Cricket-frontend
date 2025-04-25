@@ -68,12 +68,45 @@ export default function ProfilePage() {
     }
   }
 
-  const handleImageChange =async (e) => {
-    const file = e.target.files[0]
-  if (file) {
-    await uploadImage(file);
-  }
-  
+  const handleImageChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) {
+      toast.error("Please select a file");
+      return;
+    }
+    if (file.size > 1 * 1024 * 1024) {
+      toast.error("File size exceeds 2MB");
+      return;
+    }
+    if (!file.type.match(/image\/(png|jpeg|jpg)/)) {
+      toast.error("Image should be in PNG, JPEG, or JPG format");
+      return;
+    }
+
+    try {
+      const toastId = toast.loading("Uploading image...");
+      
+      const uploading = new Promise((resolve, reject) => {
+        uploadImage(file)
+          .then((result) => {
+            resolve(result);
+          })
+          .catch((error) => {
+            reject(error);
+          });
+      });
+
+      await uploading;
+      toast.update(toastId, {
+        render: "Image uploaded successfully",
+        type: "success",
+        isLoading: false,
+        autoClose: 3000
+      });
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast.error("Error uploading image: " + error.message);
+    }
   }
 
   const handlePhoneSubmit = async(e, mobile) => {
