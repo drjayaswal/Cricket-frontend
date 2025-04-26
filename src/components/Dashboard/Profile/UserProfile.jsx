@@ -1,65 +1,75 @@
-"use client"
+"use client";
 
-import { useState, useRef, useContext } from "react"
-import { Camera, ChevronRight, Edit, LogOut, Phone, Shield, Users } from "lucide-react"
-import { UserContext } from "../../../Context/UserContext"
-import { useNavigate } from "react-router-dom"
-import CancelIcon from '@mui/icons-material/Cancel';
-import VerifiedIcon from '@mui/icons-material/Verified';
-import { toast } from "react-toastify"
-import Contact from '../StaticComponents/Contact'
-
+import { useState, useRef, useContext } from "react";
+import {
+  Camera,
+  ChevronRight,
+  Edit,
+  LogOut,
+  Phone,
+  Shield,
+  Users,
+} from "lucide-react";
+import { UserContext } from "../../../Context/UserContext";
+import { useNavigate } from "react-router-dom";
+import CancelIcon from "@mui/icons-material/Cancel";
+import VerifiedIcon from "@mui/icons-material/Verified";
+import { toast } from "react-toastify";
+import dpBanner from "/assets/dp-banner.jpg?url";
+import dmdp from "/assets/dmdp.png?url";
 
 export default function ProfilePage() {
-  const [balance, setBalance] = useState(100.0)
-  const [phoneNumber, setPhoneNumber] = useState("")
-  const [showEditPhone, setShowEditPhone] = useState(false)
-  const [showVerifyOtp, setShowVerifyOtp] = useState(false)
-  const fileInputRef = useRef(null)
-  const [showAddMoney, setShowAddMoney] = useState(false)
-  const [addAmount, setAddAmount] = useState("")
-  const [OTP,SetOTP] = useState("")
-
+  const [balance, setBalance] = useState(100.0);
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [showEditPhone, setShowEditPhone] = useState(false);
+  const [showVerifyOtp, setShowVerifyOtp] = useState(false);
+  const fileInputRef = useRef(null);
+  const [showAddMoney, setShowAddMoney] = useState(false);
+  const [addAmount, setAddAmount] = useState("");
+  const [OTP, SetOTP] = useState("");
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   // Add this function after the existing state declarations:
 
-    const{logout,user,uploadImage,VerifyMobile,verifyMobileOtp} = useContext(UserContext)
-    
-  const navigate = useNavigate()
+  const { logout, user, uploadImage, VerifyMobile, verifyMobileOtp } =
+    useContext(UserContext);
 
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    setIsLoggingOut(true);
+      logout();
+      navigate("/login");
+  };
 
   const handleMenuClick = (menuItem) => {
     switch (menuItem) {
       case "My Transaction":
-        navigate("/transactions")
-        break
+        navigate("/transactions");
+        break;
       case "Withdraw":
-        navigate("/withdraw")
-        break
+        navigate("/withdraw");
+        break;
       case "KYC Verification":
-        navigate("/kyc")
-        break
+        navigate("/kyc");
+        break;
       case "Invite Friends":
-        navigate("/invite")
-        break
+        navigate("/invite");
+        break;
       case "Terms and Conditions":
-        navigate("/terms")
-        break
+        navigate("/terms");
+        break;
       case "Privacy Policy":
-        navigate("/privacy")
-        break
+        navigate("/privacy");
+        break;
       case "Contact Us":
-        navigate("/contact")
-        break
+        navigate("/contact");
+        break;
       case "Logout":
-        if (confirm("Are you sure you want to logout?")) {
-          logout()
-          navigate("/login")
-        }
-        break
+        handleLogout();
+        break;
       default:
-        console.log(`Clicked on ${menuItem}`)
+        console.log(`Clicked on ${menuItem}`);
     }
-  }
+  };
 
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
@@ -78,7 +88,7 @@ export default function ProfilePage() {
 
     try {
       const toastId = toast.loading("Uploading image...");
-      
+
       const uploading = new Promise((resolve, reject) => {
         uploadImage(file)
           .then((result) => {
@@ -94,16 +104,16 @@ export default function ProfilePage() {
         render: "Image uploaded successfully",
         type: "success",
         isLoading: false,
-        autoClose: 3000
+        autoClose: 3000,
       });
     } catch (error) {
       console.error("Upload error:", error);
       toast.error("Error uploading image: " + error.message);
     }
-  }
+  };
 
-  const handlePhoneSubmit = async(e, mobile) => {
-    e.preventDefault()
+  const handlePhoneSubmit = async (e, mobile) => {
+    e.preventDefault();
     // check mobile number is start with +91
     let phoneNumber = mobile.trim();
 
@@ -125,67 +135,79 @@ export default function ProfilePage() {
       );
       return;
     }
-  
-    if(phoneNumber) {
+
+    if (phoneNumber) {
       console.log(phoneNumber);
-      
-      await VerifyMobile(phoneNumber)
+
+      await VerifyMobile(phoneNumber);
       // setPhoneNumber("")
-      setShowVerifyOtp(true)
-      setShowEditPhone(false)
+      setShowVerifyOtp(true);
+      setShowEditPhone(false);
     } else {
-      toast.error("Please enter a valid phone number.")
+      toast.error("Please enter a valid phone number.");
     }
-     
-  }
+  };
 
-  const handleCloseProfile = (()=>{
-    navigate("/")
-  })
+  const handleCloseProfile = () => {
+    navigate("/");
+  };
 
-  const handleVerifyNumber = async(e,mobile,otp)=>{
-    e.preventDefault()
+  const handleVerifyNumber = async (e, mobile, otp) => {
+    e.preventDefault();
 
-     // check mobile number is start with +91
-     let phoneNumber = mobile.trim();
+    // check mobile number is start with +91
+    let phoneNumber = mobile.trim();
 
-     // Remove spaces, dashes, or non-numeric characters
-     phoneNumber = phoneNumber.replace(/\D/g, "");
- 
-     // Ensure it starts with +91
-     if (!phoneNumber.startsWith("91")) {
-       phoneNumber = `91${phoneNumber}`;
-     }
- 
-     phoneNumber = `+${phoneNumber}`;
- 
-     const phoneRegex = /^\+91[6-9]\d{9}$/;
- 
-     if (!phoneRegex.test(phoneNumber)) {
-       toast.error(
-         "Invalid phone number. Must be a valid Indian number (+91XXXXXXXXXX)."
-       );
-       return;
-     }
+    // Remove spaces, dashes, or non-numeric characters
+    phoneNumber = phoneNumber.replace(/\D/g, "");
 
-    if(otp) {
-      await verifyMobileOtp(phoneNumber, otp)
-      setShowVerifyOtp(false)
-      setShowEditPhone(false)
-      setPhoneNumber("")
-      SetOTP("")
+    // Ensure it starts with +91
+    if (!phoneNumber.startsWith("91")) {
+      phoneNumber = `91${phoneNumber}`;
     }
 
-  }
+    phoneNumber = `+${phoneNumber}`;
+
+    const phoneRegex = /^\+91[6-9]\d{9}$/;
+
+    if (!phoneRegex.test(phoneNumber)) {
+      toast.error(
+        "Invalid phone number. Must be a valid Indian number (+91XXXXXXXXXX)."
+      );
+      return;
+    }
+
+    if (otp) {
+      await verifyMobileOtp(phoneNumber, otp);
+      setShowVerifyOtp(false);
+      setShowEditPhone(false);
+      setPhoneNumber("");
+      SetOTP("");
+    }
+  };
 
   return (
-    <div className="min-h-screen realtive bg-gradient-to-b from-blue-900 to-blue-950 text-white">
+    <div className="min-h-screen realtive text-white">
       {/* Header with profile */}
-      <div className="absolute top-2 right-2 z-100 " onClick={handleCloseProfile}><CancelIcon /></div>
-      <div className="relative bg-gradient-to-r from-green-800 to-green-700 p-4 flex items-center">
+      <div
+        className="absolute top-2 right-2 z-100 "
+        onClick={handleCloseProfile}
+      >
+        <CancelIcon />
+      </div>
+      <img
+        src={dpBanner}
+        alt="Profile Banner"
+        className="w-full h-32 object-cover rounded-lg absolute"
+        style={{
+          filter: "blur(3px)",
+          height: "100px",
+        }}
+      />
+      <div className="relative dp-banner p-4 flex items-center">
         <div className="relative">
           <img
-            src={user.profileImage}
+            src={user.profileImage ? user.profileImage : dmdp}
             alt="Profile"
             className="w-16 h-16 rounded-full border-2 border-white object-cover"
           />
@@ -195,14 +217,29 @@ export default function ProfilePage() {
           >
             <Camera size={16} />
           </button>
-          <input type="file" ref={fileInputRef} onChange={handleImageChange} className="hidden" accept="image/*" />
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleImageChange}
+            className="hidden"
+            accept="image/*"
+          />
         </div>
         <div className="ml-4">
           <h2 className="font-semibold text-lg">{user?.name}</h2>
           <div className="flex items-center">
             <span className="text-sm">{user.mobile}</span>
-            <button onClick={() => setShowEditPhone( true )} className="ml-2 text-white">
-              {user.isVerified ? <VerifiedIcon/> :<span className="flex items-center gap-2">Verify number <Edit size={14} /></span>} 
+            <button
+              onClick={() => setShowEditPhone(true)}
+              className="ml-2 text-white"
+            >
+              {user.isVerified ? (
+                <VerifiedIcon />
+              ) : (
+                <span className="flex items-center gap-2">
+                  Verify number <Edit size={14} />
+                </span>
+              )}
             </button>
           </div>
         </div>
@@ -213,7 +250,7 @@ export default function ProfilePage() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg p-6 w-full max-w-md text-gray-800">
             <h3 className="font-bold text-lg mb-4">Enter Phone Number</h3>
-            <form onSubmit={(e)=>handlePhoneSubmit(e,phoneNumber)}>
+            <form onSubmit={(e) => handlePhoneSubmit(e, phoneNumber)}>
               <input
                 type="tel"
                 value={phoneNumber}
@@ -222,10 +259,17 @@ export default function ProfilePage() {
                 className="w-full p-2 border border-gray-300 rounded mb-4"
               />
               <div className="flex justify-end gap-2">
-                <button type="button" onClick={() => setShowEditPhone(false)} className="px-4 py-2 bg-gray-200 rounded">
+                <button
+                  type="button"
+                  onClick={() => setShowEditPhone(false)}
+                  className="px-4 py-2 bg-gray-200 rounded"
+                >
                   Cancel
                 </button>
-                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded">
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-600 text-white rounded"
+                >
                   Next
                 </button>
               </div>
@@ -237,28 +281,35 @@ export default function ProfilePage() {
       {/* Verify OTP modal */}
       {showVerifyOtp && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-lg p-6 w-full max-w-md text-gray-800">
-          <h3 className="font-bold text-lg mb-4">Enter OTP</h3>
-          <form onSubmit={(e)=>handleVerifyNumber(e,phoneNumber,OTP)}>
-            <input
-              type="tel"
-              value={OTP}
-              onChange={(e) => SetOTP(e.target.value)}
-              placeholder="Enter new phone number"
-              className="w-full p-2 border border-gray-300 rounded mb-4"
-            />
-            <div className="flex justify-end gap-2">
-              <button type="button" onClick={() => setShowVerifyOtp(false)} className="px-4 py-2 bg-gray-200 rounded">
-                Cancel
-              </button>
-              <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded">
-                Submit
-              </button>
-            </div>
-          </form>
+          <div className="bg-white rounded-lg p-6 w-full max-w-md text-gray-800">
+            <h3 className="font-bold text-lg mb-4">Enter OTP</h3>
+            <form onSubmit={(e) => handleVerifyNumber(e, phoneNumber, OTP)}>
+              <input
+                type="tel"
+                value={OTP}
+                onChange={(e) => SetOTP(e.target.value)}
+                placeholder="Enter new phone number"
+                className="w-full p-2 border border-gray-300 rounded mb-4"
+              />
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowVerifyOtp(false)}
+                  className="px-4 py-2 bg-gray-200 rounded"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-600 text-white rounded"
+                >
+                  Submit
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-      </div>
-    )}
+      )}
 
       {/* Add Money modal */}
       {showAddMoney && (
@@ -267,17 +318,19 @@ export default function ProfilePage() {
             <h3 className="font-bold text-lg mb-4">Add Money</h3>
             <form
               onSubmit={(e) => {
-                e.preventDefault()
-                const amount = Number.parseFloat(addAmount)
+                e.preventDefault();
+                const amount = Number.parseFloat(addAmount);
                 if (!isNaN(amount) && amount > 0) {
-                  setBalance((prevBalance) => prevBalance + amount)
-                  setAddAmount("")
-                  setShowAddMoney(false)
+                  setBalance((prevBalance) => prevBalance + amount);
+                  setAddAmount("");
+                  setShowAddMoney(false);
                 }
               }}
             >
               <div className="mb-4">
-                <label className="block text-sm font-medium mb-1">Amount (₹)</label>
+                <label className="block text-sm font-medium mb-1">
+                  Amount (₹)
+                </label>
                 <input
                   type="number"
                   value={addAmount}
@@ -290,10 +343,17 @@ export default function ProfilePage() {
                 />
               </div>
               <div className="flex justify-end gap-2">
-                <button type="button" onClick={() => setShowAddMoney(false)} className="px-4 py-2 bg-gray-200 rounded">
+                <button
+                  type="button"
+                  onClick={() => setShowAddMoney(false)}
+                  className="px-4 py-2 bg-gray-200 rounded"
+                >
                   Cancel
                 </button>
-                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded">
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-600 text-white rounded"
+                >
                   Add Money
                 </button>
               </div>
@@ -331,7 +391,11 @@ export default function ProfilePage() {
               text="My Transaction"
               onClick={() => handleMenuClick("My Transaction")}
             />
-            <MenuItem icon={<ChevronRight size={18} />} text="Withdraw" onClick={() => handleMenuClick("Withdraw")} />
+            <MenuItem
+              icon={<ChevronRight size={18} />}
+              text="Withdraw"
+              onClick={() => handleMenuClick("Withdraw")}
+            />
             <MenuItem
               icon={<ChevronRight size={18} />}
               text="KYC Verification"
@@ -344,6 +408,29 @@ export default function ProfilePage() {
             />
           </div>
         </div>
+        {isLoggingOut && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg p-6 w-full max-w-md text-gray-800">
+              <h3 className="font-bold text-lg mb-4">Do you really want to logout..?</h3>
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsLoggingOut(false)}
+                  className="px-4 py-2 bg-gray-200 rounded"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="px-4 py-2 bg-blue-600 text-white rounded"
+                >
+                  Logout
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div>
           <h3 className="text-lg font-semibold mb-2">Legality & Security</h3>
@@ -373,13 +460,15 @@ export default function ProfilePage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 function MenuItem({ icon, text, isLast = false, onClick }) {
   return (
     <div
-      className={`flex items-center justify-between p-3 ${!isLast && "border-b border-blue-700"} cursor-pointer hover:bg-blue-700 hover:bg-opacity-30 transition-colors`}
+      className={`flex items-center justify-between p-3 ${
+        !isLast && "border-b border-blue-700"
+      } cursor-pointer hover:bg-blue-700 hover:bg-opacity-30 transition-colors`}
       onClick={onClick}
     >
       <div className="flex items-center">
@@ -388,29 +477,28 @@ function MenuItem({ icon, text, isLast = false, onClick }) {
       </div>
       <span className="text-blue-300">{icon}</span>
     </div>
-  )
+  );
 }
 
 function getIconForMenuItem(text) {
   switch (text) {
     case "My Transaction":
-      return <ChevronRight size={18} />
+      return <ChevronRight size={18} />;
     case "Withdraw":
-      return <ChevronRight size={18} />
+      return <ChevronRight size={18} />;
     case "KYC Verification":
-      return <Shield size={18} />
+      return <Shield size={18} />;
     case "Invite Friends":
-      return <Users size={18} />
+      return <Users size={18} />;
     case "Terms and Conditions":
-      return <ChevronRight size={18} />
+      return <ChevronRight size={18} />;
     case "Privacy Policy":
-      return <ChevronRight size={18} />
+      return <ChevronRight size={18} />;
     case "Contact Us":
-      return <Phone size={18} />
+      return <Phone size={18} />;
     case "Logout":
-      return <LogOut size={18} />
+      return <LogOut size={18} />;
     default:
-      return <ChevronRight size={18} />
+      return <ChevronRight size={18} />;
   }
 }
-

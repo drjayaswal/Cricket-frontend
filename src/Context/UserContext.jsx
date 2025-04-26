@@ -28,10 +28,11 @@ export const UserProvider = ({ children }) => {
   const [seriesMatchData, setSeriesMatchData] = useState(null);
 
   // Authentication Methods
-  const sendOtp = async (Name, phonenumber) => {
+  const sendOtp = async (Name, phonenumber,referralCode) => {
     const response = await axios.post(`${BACKEND_URL}/auth/send-otp`, {
       name: Name,
       mobile: phonenumber,
+      referredBy: referralCode,
     });
     return response.data;
   };
