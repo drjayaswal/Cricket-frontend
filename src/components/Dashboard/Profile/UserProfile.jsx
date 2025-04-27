@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useRef, useContext } from "react";
 import {
   Camera,
@@ -17,6 +15,16 @@ import VerifiedIcon from "@mui/icons-material/Verified";
 import { toast } from "react-toastify";
 import dpBanner from "/assets/dp-banner.jpg?url";
 import dmdp from "/assets/dmdp.png?url";
+
+
+import { useState, useRef, useContext } from "react"
+import { Camera, ChevronRight, Edit, LogOut, Phone, Shield, User, Users } from "lucide-react"
+import { UserContext } from "../../../Context/UserContext"
+import { useNavigate } from "react-router-dom"
+import CancelIcon from '@mui/icons-material/Cancel';
+import VerifiedIcon from '@mui/icons-material/Verified';
+import { toast } from "react-toastify"
+import dmdp from "/assets/dmdp.jpg?url"
 
 export default function ProfilePage() {
   const [balance, setBalance] = useState(100.0);
@@ -71,6 +79,7 @@ export default function ProfilePage() {
     }
   };
 
+
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (!file) {
@@ -111,6 +120,21 @@ export default function ProfilePage() {
       toast.error("Error uploading image: " + error.message);
     }
   };
+  const handleImageChange =async (e) => {
+    const file = e.target.files[0]
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("File size exceeds 2MB")
+      return
+    }
+
+    try{
+      await uploadImage(file);
+      toast.success("Image uploaded successfully")
+    }
+    catch(err){
+      toast.error("Error uploading image")
+    }
+  }
 
   const handlePhoneSubmit = async (e, mobile) => {
     e.preventDefault();
