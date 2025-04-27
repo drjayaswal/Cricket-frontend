@@ -1,13 +1,13 @@
 "use client"
 
 import { useState, useRef, useContext } from "react"
-import { Camera, ChevronRight, Edit, LogOut, Phone, Shield, Users } from "lucide-react"
+import { Camera, ChevronRight, Edit, LogOut, Phone, Shield, User, Users } from "lucide-react"
 import { UserContext } from "../../../Context/UserContext"
 import { useNavigate } from "react-router-dom"
 import CancelIcon from '@mui/icons-material/Cancel';
 import VerifiedIcon from '@mui/icons-material/Verified';
 import { toast } from "react-toastify"
-
+import dmdp from "/assets/dmdp.jpg?url"
 
 export default function ProfilePage() {
   const [balance, setBalance] = useState(100.0)
@@ -70,10 +70,18 @@ export default function ProfilePage() {
 
   const handleImageChange =async (e) => {
     const file = e.target.files[0]
-  if (file) {
-    await uploadImage(file);
-  }
-  
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("File size exceeds 2MB")
+      return
+    }
+
+    try{
+      await uploadImage(file);
+      toast.success("Image uploaded successfully")
+    }
+    catch(err){
+      toast.error("Error uploading image")
+    }
   }
 
   const handlePhoneSubmit = async(e, mobile) => {
@@ -159,7 +167,7 @@ export default function ProfilePage() {
       <div className="relative bg-gradient-to-r from-green-800 to-green-700 p-4 flex items-center">
         <div className="relative">
           <img
-            src={user.profileImage}
+            src={user.profileImage ? user.profileImage : dmdp}
             alt="Profile"
             className="w-16 h-16 rounded-full border-2 border-white object-cover"
           />
