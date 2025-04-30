@@ -27,6 +27,8 @@ import KYCVerification from './components/Dashboard/KYC';
 import InviteFriends from './components/Dashboard/Invite';
 import TermsAndConditions from './components/Dashboard/Legal/TermsAndConditions';
 import PrivacyPolicy from './components/Dashboard/Legal/PrivacyPolicy';
+import PaymentStatus from './components/Payments/PaymentStatus';
+import POSTHandler from './components/Payments/POSTHandler'
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -45,7 +47,6 @@ function App() {
   }, []);
 
   return (
-    
     <UserProvider>
        {loading ? (
          <Preloader onComplete={() => setLoading(false)} />
@@ -54,20 +55,32 @@ function App() {
             <ToastContainer position="top-right" autoClose={1500} />
           <Router>
           <Routes>
+            {/* Main Dashboard Routes */}
             <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
+            
+            {/* Cricket Match & Betting Routes */}
             <Route path="/betting-interface" element={<PrivateRoute><BettingInterface /></PrivateRoute>} />
             <Route path="/live-matches" element={<PrivateRoute><CurrentMatch /></PrivateRoute>} />
-            <Route path="/UserProfile" element={<PrivateRoute><UserProfile/></PrivateRoute>}/>
             <Route path="/portfolio" element={<PrivateRoute><Portfolio /></PrivateRoute>} />
             <Route path="/team-stats" element={<PrivateRoute><Teamstats /></PrivateRoute>} />
+            
+            {/* Payment Routes */}
+            <Route path="/payment/status/:transactionId" element={<PrivateRoute><PaymentStatus /></PrivateRoute>} />
+            
+            {/* User Account & Profile Routes */}
+            <Route path="/UserProfile" element={<PrivateRoute><UserProfile/></PrivateRoute>}/>
+            <Route path="/transactions" element={<PrivateRoute><Transactions /></PrivateRoute>} />
+            <Route path="/withdraw" element={<PrivateRoute><Withdraw /></PrivateRoute>} />
+            <Route path="/kyc" element={<PrivateRoute><KYCVerification /></PrivateRoute>} />
+            <Route path="/invite" element={<PrivateRoute><InviteFriends /></PrivateRoute>} />
+            
+            {/* Static & Information Pages */}
             <Route path="/contact" element={<PrivateRoute><Contact /></PrivateRoute>} />
             <Route path="/about" element={<PrivateRoute><About /></PrivateRoute>} />
-            <Route path="/transactions" element={<Transactions />} />
-            <Route path="/withdraw" element={<Withdraw />} />
-            <Route path="/kyc" element={<KYCVerification />} />
-            <Route path="/invite" element={<InviteFriends />} />
-            <Route path="/terms" element={<TermsAndConditions />} />
-            <Route path="/privacy" element={<PrivacyPolicy />} />          
+            <Route path="/terms" element={<PrivateRoute><TermsAndConditions /></PrivateRoute>} />
+            <Route path="/privacy" element={<PrivateRoute><PrivacyPolicy /></PrivateRoute>} />          
+            
+            {/* Authentication Routes */}
             <Route path="/signup" element={<Signup />} />
             <Route path="/verifyOtp" element={<VerifyOTP />} />
             <Route path="/setpassword" element={<SetPassword />} />
@@ -76,6 +89,8 @@ function App() {
             <Route path="/forgot-password" element={<ForgetPass/>}/> 
             <Route path="/forgot-password/verify-password" element={<ForgetVerifyOtp/>}/> 
             <Route path="/forgot-password/changePass" element={<ChangePass/>} />
+            
+            {/* 404 Route */}
             <Route path="/*" element={<>No Such Endpoints</>} />
           </Routes>
         </Router>

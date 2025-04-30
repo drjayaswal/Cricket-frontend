@@ -1,5 +1,6 @@
 "use client";
 
+// Imports and Dependencies
 import { useState, useRef, useContext } from "react";
 import {
   Camera,
@@ -19,6 +20,7 @@ import dpBanner from "/assets/dp-banner.jpg?url";
 import dmdp from "/assets/dmdp.png?url";
 
 export default function ProfilePage() {
+  // State Management
   const [balance, setBalance] = useState(100.0);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [showEditPhone, setShowEditPhone] = useState(false);
@@ -28,18 +30,61 @@ export default function ProfilePage() {
   const [addAmount, setAddAmount] = useState("");
   const [OTP, SetOTP] = useState("");
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  // Add this function after the existing state declarations:
 
-  const { logout, user, uploadImage, VerifyMobile, verifyMobileOtp } =
-    useContext(UserContext);
-
+  // Context and Navigation Setup
+  const { logout, user, uploadImage, VerifyMobile, verifyMobileOtp } = useContext(UserContext);
   const navigate = useNavigate();
+    
+  // Payment Integration
+  const handlePaymentRequest = async (amount) => {
+    try {
+      // Get auth token from localStorage
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('Please login again');
+      }
+      const response = await fetch('http://localhost:5002/payment/start', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          name: user.name,
+          mobile: user.mobile,
+          amount: amount
+        })
+      });
+      const data = await response.json();
+      if (response.ok) {
+        console.log('Payment initiated successfully:', data);
+        toast.success('Payment initiated successfully');
+        setAddAmount("");
+        setShowAddMoney(false);
+      } else {
+        console.error('Payment initiation failed:', data);
+        toast.error(data.message || 'Payment initiation failed');
+        throw new Error(data.message || 'Payment initiation failed');
+      }
+      if(data.data && data.data.redirectUrl) {
+        window.location.href = data.data.redirectUrl;
+      } else {
+        throw new Error('Payment URL not found in response');
+      }
+    } catch (error) {
+      toast.error(error.message || 'Failed to start payment');
+      throw error;
+    }
+  };
+
+  // Authentication Handlers
   const handleLogout = () => {
     setIsLoggingOut(true);
       logout();
       navigate("/login");
   };
 
+  // Navigation Handlers
   const handleMenuClick = (menuItem) => {
     switch (menuItem) {
       case "My Transaction":
@@ -71,6 +116,7 @@ export default function ProfilePage() {
     }
   };
 
+  // Profile Image Handlers
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (!file) {
@@ -112,6 +158,7 @@ export default function ProfilePage() {
     }
   };
 
+  // Phone Verification Handlers
   const handlePhoneSubmit = async (e, mobile) => {
     e.preventDefault();
     // check mobile number is start with +91
@@ -188,11 +235,8 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen realtive text-white">
-      {/* Header with profile */}
-      <div
-        className="absolute top-2 right-2 z-100 "
-        onClick={handleCloseProfile}
-      >
+      {/* Profile Header Section */}
+      <div className="absolute top-2 right-2 z-100" onClick={handleCloseProfile}>
         <CancelIcon />
       </div>
       <img
@@ -245,7 +289,8 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* Phone number edit modal */}
+      {/* Modal Components */}
+      {/* Phone Number Edit Modal */}
       {showEditPhone && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg p-6 w-full max-w-md text-gray-800">
@@ -278,7 +323,7 @@ export default function ProfilePage() {
         </div>
       )}
 
-      {/* Verify OTP modal */}
+      {/* OTP Verification Modal */}
       {showVerifyOtp && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg p-6 w-full max-w-md text-gray-800">
@@ -311,19 +356,27 @@ export default function ProfilePage() {
         </div>
       )}
 
-      {/* Add Money modal */}
+      {/* Add Money Modal */}
       {showAddMoney && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg p-6 w-full max-w-md text-gray-800">
             <h3 className="font-bold text-lg mb-4">Add Money</h3>
             <form
-              onSubmit={(e) => {
+              onSubmit={async (e) => {
                 e.preventDefault();
                 const amount = Number.parseFloat(addAmount);
                 if (!isNaN(amount) && amount > 0) {
-                  setBalance((prevBalance) => prevBalance + amount);
-                  setAddAmount("");
-                  setShowAddMoney(false);
+                  try {
+                    const paymentData = handlePaymentRequest(amount);
+                    // Handle the payment data response here
+                    toast.success('Payment initiated successfully');
+                    setAddAmount("");
+                    setShowAddMoney(false);
+                  } catch (error) {
+                    console.error('Payment error:', error);
+                  }
+                } else {
+                  toast.error('Please enter a valid amount');
                 }
               }}
             >
@@ -362,7 +415,7 @@ export default function ProfilePage() {
         </div>
       )}
 
-      {/* Balance Card */}
+      {/* Balance Display Section */}
       <div className="p-4">
         <div className="bg-blue-500 rounded-lg p-4 flex justify-between items-center">
           <div>
@@ -381,7 +434,7 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* Menu Sections */}
+      {/* Menu Navigation Section */}
       <div className="p-4">
         <div className="mb-6">
           <h3 className="text-lg font-semibold mb-2">My Account</h3>
@@ -408,6 +461,7 @@ export default function ProfilePage() {
             />
           </div>
         </div>
+        {/* Logout Confirmation Modal */}
         {isLoggingOut && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-lg p-6 w-full max-w-md text-gray-800">

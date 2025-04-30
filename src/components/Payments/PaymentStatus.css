@@ -1,0 +1,129 @@
+.payment-status-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+    padding: 2rem;
+    background-color: #f0f2f5;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin-top: 45px;
+  }
+  
+  .payment-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 600px;
+    /* transition: all 0.3s ease-in-out; */
+  }
+  
+  .payment-title {
+    color: #2c3e50;
+    font-size: 28px;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 1rem;
+  }
+  
+  .payment-details {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  
+  .detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  
+  .label {
+    color: black;
+    font-weight: 400;
+    font-size: 16px;
+    min-width: 160px;
+  }
+  
+  .value {
+      color: #3498db;
+      font-weight: 500;
+      font-size: 16px;
+    word-break: break-all;
+  }
+  
+  .status {
+    padding: 0.4rem 1rem;
+    border-radius: 50px;
+    text-transform: capitalize;
+    font-weight: 400;
+    font-size: 14px;
+    display: inline-block;
+  }
+  
+  .status.success {
+    background-color: #d4edda;
+    border: 0.5px solid rgb(37, 156, 37);
+    color: rgb(37, 156, 37);
+    font-weight: 400 !important;
+  }
+  
+  .status.pending {
+    background-color: #fff3cd;
+    color: #856404;
+  }
+  
+  .status.failed {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+  
+  .loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 80vh;
+  }
+  
+  .loader {
+    border: 4px solid #e0e0e0;
+    border-radius: 50%;
+    border-top: 4px solid #3498db;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  @media (max-width: 768px) {
+    .payment-card {
+      margin: 1rem;
+      padding: 2rem;
+    }
+  
+    .payment-title {
+      font-size: 22px;
+    }
+  
+    .detail-item {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+  
+    .label,
+    .value {
+      font-size: 15px;
+    }
+  }
