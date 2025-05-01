@@ -6,7 +6,6 @@
     padding: 2rem;
     background-color: #f0f2f5;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin-top: 45px;
   }
   
   .payment-card {
@@ -74,13 +73,13 @@
   }
   
   .status.pending {
-    background-color: #fff3cd;
-    color: #856404;
+    background-color: rgb(247, 205, 98);
+    color: white;
   }
   
   .status.failed {
-    background-color: #f8d7da;
-    color: #721c24;
+    background-color: #e65765;
+    color: white;
   }
   
   .loading-container {
@@ -126,4 +125,90 @@
     .value {
       font-size: 15px;
     }
+  }
+  /* 
+  
+  .summary-container {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fafafa;
+    font-family: Arial, sans-serif;
+  }
+  
+  .summary-table {
+    width: 100%;
+    border-collapse: collapse;
+    color: black;
+  }
+  
+  .label {
+    font-weight: bold;
+    padding-right: 10px;
+    vertical-align: top;
+    width: 40%;
+  }
+
+  .status {
+    padding: 0.4rem 1rem;
+    border-radius: 50px;
+    text-transform: capitalize;
+    font-weight: 400;
+    font-size: 14px;
+    display: inline-block;
+  }
+  
+  /* Completed */
+  .status.success {
+    background-color: #d4edda;
+    border: 0.5px solid #28a745;
+    color: #28a745;
+    font-weight: 400 !important;
+  }
+  
+  /* Pending */
+  .status.pending {
+    background-color: #fff3cd;
+    border: 0.5px solid #ffc107;
+    color: #856404;
+    font-weight: 400 !important;
+  }
+  
+  /* Failed */
+  .status.failed {
+    background-color: #f8d7da;
+    border: 0.5px solid #dc3545;
+    color: #dc3545;
+    font-weight: 400 !important;
+  }
+
+
+  .home-btn-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+  
+  .home-btn,
+  .download-btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .home-btn,.download-btn {
+    background-color: #3498db;
+    color: white;
+  }
+  
+  .home-btn:hover,.download-btn:hover {
+    background-color: #2980b9;
   }

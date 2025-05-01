@@ -28,7 +28,6 @@ import InviteFriends from './components/Dashboard/Invite';
 import TermsAndConditions from './components/Dashboard/Legal/TermsAndConditions';
 import PrivacyPolicy from './components/Dashboard/Legal/PrivacyPolicy';
 import PaymentStatus from './components/Payments/PaymentStatus';
-import POSTHandler from './components/Payments/POSTHandler'
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -65,7 +64,7 @@ function App() {
             <Route path="/team-stats" element={<PrivateRoute><Teamstats /></PrivateRoute>} />
             
             {/* Payment Routes */}
-            <Route path="/payment/status/:transactionId" element={<PrivateRoute><PaymentStatus /></PrivateRoute>} />
+            <Route path="/payment/status/:txnId" element={<PrivateRoute><PaymentStatus /></PrivateRoute>} />
             
             {/* User Account & Profile Routes */}
             <Route path="/UserProfile" element={<PrivateRoute><UserProfile/></PrivateRoute>}/>

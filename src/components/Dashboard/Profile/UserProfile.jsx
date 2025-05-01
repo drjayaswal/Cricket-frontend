@@ -20,7 +20,6 @@ import dpBanner from "/assets/dp-banner.jpg?url";
 import dmdp from "/assets/dmdp.png?url";
 
 export default function ProfilePage() {
-  // State Management
   const [balance, setBalance] = useState(100.0);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [showEditPhone, setShowEditPhone] = useState(false);
@@ -30,15 +29,22 @@ export default function ProfilePage() {
   const [addAmount, setAddAmount] = useState("");
   const [OTP, SetOTP] = useState("");
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-
-  // Context and Navigation Setup
   const { logout, user, uploadImage, VerifyMobile, verifyMobileOtp } = useContext(UserContext);
   const navigate = useNavigate();
-    
-  // Payment Integration
+  
+  
+  
+  
+  
+  const redirectToPayment = (url) => {
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.target = '_blank';
+    anchor.rel = 'noopener noreferrer';
+    anchor.click();
+  };
   const handlePaymentRequest = async (amount) => {
     try {
-      // Get auth token from localStorage
       const token = localStorage.getItem('token');
       if (!token) {
         throw new Error('Please login again');
@@ -57,17 +63,17 @@ export default function ProfilePage() {
       });
       const data = await response.json();
       if (response.ok) {
-        console.log('Payment initiated successfully:', data);
         toast.success('Payment initiated successfully');
         setAddAmount("");
         setShowAddMoney(false);
       } else {
-        console.error('Payment initiation failed:', data);
         toast.error(data.message || 'Payment initiation failed');
         throw new Error(data.message || 'Payment initiation failed');
       }
-      if(data.data && data.data.redirectUrl) {
-        window.location.href = data.data.redirectUrl;
+      if(data.response && data.response.redirectUrl) {
+        redirectToPayment(data.response.redirectUrl)
+        navigate(`/payment/status/${response.userData.transactionId}`)
+        return
       } else {
         throw new Error('Payment URL not found in response');
       }
@@ -367,9 +373,7 @@ export default function ProfilePage() {
                 const amount = Number.parseFloat(addAmount);
                 if (!isNaN(amount) && amount > 0) {
                   try {
-                    const paymentData = handlePaymentRequest(amount);
-                    // Handle the payment data response here
-                    toast.success('Payment initiated successfully');
+                    handlePaymentRequest(amount);
                     setAddAmount("");
                     setShowAddMoney(false);
                   } catch (error) {
@@ -407,7 +411,7 @@ export default function ProfilePage() {
                   type="submit"
                   className="px-4 py-2 bg-blue-600 text-white rounded"
                 >
-                  Add Money
+                  Add
                 </button>
               </div>
             </form>
