@@ -13,7 +13,6 @@ const PaymentStatus = () => {
 
   const [paymentData, setPaymentData] = useState(null);
 
-  const [loading, setLoading] = useState(true);
 
   const goToHome = () => {
     navigate("/UserProfile");
@@ -89,6 +88,8 @@ const PaymentStatus = () => {
   const getTransactionStatus = async () => {
     try {
       const response = await axios.get(`${BACK}/payment/status/${txnId}`);
+      console.log(response)
+      // return
       const data = response.data.response;
 
       const payment = data.paymentDetails[0];
@@ -108,7 +109,7 @@ const PaymentStatus = () => {
       };
       setPaymentData(mappedData);
       console.log(mappedData)
-      setLoading(false);
+
       setTimeout(
         () => {
           goToHome()
@@ -118,21 +119,13 @@ const PaymentStatus = () => {
     } catch (error) {
       toast.error("Failed to fetch payment status.");
       console.error("Transaction fetch error:", error);
-      setLoading(false);
+
     }
   };
   useEffect(() => {
     getTransactionStatus();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="loading-container">
-        <div className="loader"></div>
-        <p>Checking Payment Data...</p>
-      </div>
-    );
-  }
 
   return (
     <div className="payment-status-container" onClick={goToHome}>

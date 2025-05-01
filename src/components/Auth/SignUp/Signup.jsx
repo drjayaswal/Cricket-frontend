@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 
 export default function Signup() {
   const { SignupPhone, setSignupPhone, sendOtp, handleGoogleSuccess } = useContext(UserContext);
-  const [referralCode, setReferralCode] = useState("");
+  const [referredBy, setReferredBy] = useState("");
   const [error, setError] = useState("");
   const [Name,setName] = useState("")
 
@@ -29,13 +29,13 @@ export default function Signup() {
     }
 
     // Format phone number with country code
-    phoneNumber = `+91-${phoneNumber}`;
+    phoneNumber = `+91${phoneNumber}`;
     setSignupPhone(phoneNumber);
     setError("");
 
     try {
-      const response = await sendOtp(Name, phoneNumber, referralCode);
-      
+
+      const response = await sendOtp(Name, phoneNumber, referredBy);
       if (response?.message === "OTP sent successfully") {
           toast.success(response?.message);
           navigate("/verifyOtp");
@@ -95,8 +95,8 @@ export default function Signup() {
                 type="text"
                 placeholder="Referral Code (Optional)"
                 className="border-gray-700 cursor-pointer  p-4 rounded-lg text-white outline-2 outline-gray-500 w-full"
-                value={referralCode}
-                onChange={(e) => setReferralCode(e.target.value)}
+                value={referredBy}
+                onChange={(e) => setReferredBy(e.target.value)}
               />
               {error && <p className="text-red-500 text-sm">{error}</p>}
              

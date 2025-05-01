@@ -1,7 +1,7 @@
 import 'react-toastify/dist/ReactToastify.css';
 import React from 'react';
 import { useContext, useState, useEffect } from 'react';
-import { UserContext } from '../../../context/UserContext';
+import { UserContext } from '../../../Context/UserContext';
 import { toast } from 'react-toastify';
 import invitePic from '/assets/Frame.png';              
 
@@ -10,6 +10,7 @@ const InviteFriends = () => {
   const { user } = useContext(UserContext);
   
   useEffect(() => {
+    console.log(user)
     if (!user.referralCode) {
       user.referralCode = `${user.name.split(" ")[0]}${user._id.slice(0, 10)}`;
     }

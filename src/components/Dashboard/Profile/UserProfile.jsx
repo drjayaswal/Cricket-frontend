@@ -63,7 +63,7 @@ export default function ProfilePage() {
       }
       if(data.response && data.response.redirectUrl) {
         redirectToPayment(data.response.redirectUrl)
-        navigate(`/payment/status/${response.userData.transactionId}`)
+        navigate(`/payment/status/${response.userData?.transactionId}`)
         return
       } else {
         throw new Error('Payment URL not found in response');
