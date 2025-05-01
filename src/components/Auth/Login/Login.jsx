@@ -27,7 +27,7 @@ const Login = () => {
     }
 
     // Format phone number with country code
-    phoneNumber = `+91-${phoneNumber}`;
+    phoneNumber = `+91${phoneNumber}`;
     setLoginPhone(phoneNumber);
     setError("");
     navigate("/verifypass");

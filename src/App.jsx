@@ -12,6 +12,7 @@ import VerifyPass from "./components/Auth/Login/VerifyPass";
 import PrivateRoute from "./components/PrivateRoute/PrivateRoute";
 import ForgetPass from "./components/Auth/Forgetpass/ForgetPass";
 import ForgetVerifyOtp from "./components/Auth/Forgetpass/ForgetVerifyOtp";
+import NotFound from "./components/PrivateRoute/NotFound";
 import ChangePass from "./components/Auth/Forgetpass/ChangePass";
 import CurrentMatch from "./components/Dashboard/CurrentMatches/CurrentMatch";
 import BettingInterface from "./components/Dashboard/mini-components/BettingInterface";
@@ -65,6 +66,9 @@ function App() {
             
             {/* Payment Routes */}
             <Route path="/payment/status/:txnId" element={<PrivateRoute><PaymentStatus /></PrivateRoute>} />
+            <Route path="/payment/status/undefined" element={<PrivateRoute>
+              <NotFound/>
+              </PrivateRoute>} />
             
             {/* User Account & Profile Routes */}
             <Route path="/UserProfile" element={<PrivateRoute><UserProfile/></PrivateRoute>}/>

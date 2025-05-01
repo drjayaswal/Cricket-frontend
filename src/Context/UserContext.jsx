@@ -86,7 +86,6 @@ export const UserProvider = ({ children }) => {
         mobile,
         password,
       });
-
       if (response.data.token) {
         localStorage.setItem("token", response.data.token);
         alert("Login successful! Welcome to Dashboard.");
