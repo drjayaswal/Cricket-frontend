@@ -41,3 +41,7 @@
       animation: dotFade 0.8s ease-in-out forwards;
     }
   }
+
+  .box{
+    box-shadow: -1px -1px 5px gray;
+  }
