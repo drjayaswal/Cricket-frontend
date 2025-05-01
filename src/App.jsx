@@ -39,7 +39,7 @@ function App() {
       setTimeout(() => {
         setLoading(false);
         sessionStorage.setItem("hasSeenLoader", "true");
-      }, 4000); // Adjust the time as needed
+      }, 4100); // Adjust the time as needed
     } else {
       setLoading(false);
     }
@@ -91,6 +91,7 @@ function App() {
             
             {/* 404 Route */}
             <Route path="/*" element={<>No Such Endpoints</>} />
+
           </Routes>
         </Router>
           </>
