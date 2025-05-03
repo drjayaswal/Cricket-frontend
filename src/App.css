@@ -43,5 +43,16 @@
   }
 
   .box{
-    box-shadow: -1px -1px 5px gray;
+    border: 2px solid gray;
+  }
+  .live{
+    background-color: transparent;
+    color: #e53935;
+    font-weight: 600;
+    transition: all ease-in-out .1s;
+  }
+  .live:hover{
+    scale: 1.1;
+    background-color: #e53935;
+    color:#002865;
   }

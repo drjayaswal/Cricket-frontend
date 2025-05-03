@@ -87,7 +87,7 @@ const PaymentStatus = () => {
 
   const getTransactionStatus = async () => {
     try {
-      const response = await axios.get(`${BACK}/payment/status/${txnId}`);
+      const response = await axios.get(`${BACK}/payment/orders/${txnId}`);
       console.log(response)
       // return
       const data = response.data.response;

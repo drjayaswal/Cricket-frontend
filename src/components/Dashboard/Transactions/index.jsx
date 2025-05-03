@@ -3,17 +3,17 @@ import { useContext } from 'react';
 import { UserContext } from '../../../Context/UserContext';
 import axios from 'axios';
 const Transactions = () => {
-  const {user} = useContext(UserContext);
-  useEffect(async() => {
-    try {
-      const response = await axios.get()
-    } catch (error) {
+  // const {user} = useContext(UserContext);
+  // useEffect(async() => {
+  //   try {
+  //     const response = await axios.get()
+  //   } catch (error) {
       
-    }
-    return () => {
-      second
-    }
-  }, [third])
+  //   }
+  //   return () => {
+  //     second
+  //   }
+  // }, [third])
   
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-900 to-blue-950 text-white p-4">

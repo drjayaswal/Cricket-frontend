@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useContext } from "react"
-import { Camera, ChevronRight, Edit, LogOut, Phone, Shield, User, Users } from "lucide-react"
+import { Camera, ChevronRight, Edit, HandCoins, Handshake, LogOut, Phone, Shield, User, Users } from "lucide-react"
 import { UserContext } from "../../../Context/UserContext"
 import { useNavigate } from "react-router-dom"
 import CancelIcon from '@mui/icons-material/Cancel';
@@ -9,6 +9,9 @@ import VerifiedIcon from '@mui/icons-material/Verified';
 import { toast } from "react-toastify"
 import dmdp from "/assets/dmdp.jpg?url"
 import dpBanner from "/assets/dp-banner.jpg"
+import { Money, Payment, Policy } from "@mui/icons-material";
+import Transactions from "../Transactions";
+import { Paper } from "@mui/material";
 
 export default function ProfilePage() {
   const [balance, setBalance] = useState(100.0);
@@ -22,11 +25,11 @@ export default function ProfilePage() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const { logout, user, uploadImage, VerifyMobile, verifyMobileOtp } = useContext(UserContext);
   const navigate = useNavigate();
-  
-  
-  
-  
-  
+
+
+
+
+
   const redirectToPayment = (url) => {
     const anchor = document.createElement('a');
     anchor.href = url;
@@ -61,7 +64,7 @@ export default function ProfilePage() {
         toast.error(data.message || 'Payment initiation failed');
         throw new Error(data.message || 'Payment initiation failed');
       }
-      if(data.response && data.response.redirectUrl) {
+      if (data.response && data.response.redirectUrl) {
         redirectToPayment(data.response.redirectUrl)
         navigate(`/payment/status/${response.userData?.transactionId}`)
         return
@@ -77,9 +80,10 @@ export default function ProfilePage() {
   // Authentication Handlers
   const handleLogout = () => {
     setIsLoggingOut(true);
-      logout();
-      navigate("/login");
+    logout();
+    navigate("/login");
   };
+
 
   // Navigation Handlers
   const handleMenuClick = (menuItem) => {
@@ -106,7 +110,7 @@ export default function ProfilePage() {
         navigate("/contact");
         break;
       case "Logout":
-        handleLogout();
+        setIsLoggingOut(true);
         break;
       default:
         console.log(`Clicked on ${menuItem}`);
@@ -412,7 +416,7 @@ export default function ProfilePage() {
 
       {/* Balance Display Section */}
       <div className="p-4">
-        <div className="bg-blue-500 rounded-lg p-4 flex justify-between items-center">
+        <div className="bg-blue-800 rounded-lg p-4 flex justify-between items-center">
           <div>
             <p className="text-xs opacity-80">BALANCE</p>
             <p className="text-2xl font-bold">₹ {balance.toFixed(2)}</p>
@@ -420,7 +424,7 @@ export default function ProfilePage() {
           <div className="flex gap-2">
             <button
               onClick={() => setShowAddMoney(true)}
-              className="bg-blue-600 hover:bg-blue-700 rounded-full p-2 flex items-center"
+              className="bg-blue-800 border-1 border-blue-800 hover:border-white rounded-full px-4 py-2 flex items-center"
             >
               <span className="mr-1">+</span>
               <span className="">Add Money</span>
@@ -460,18 +464,18 @@ export default function ProfilePage() {
         {isLoggingOut && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-lg p-6 w-full max-w-md text-gray-800">
-              <h3 className="font-bold text-lg mb-4">Do you really want to logout..?</h3>
+              <h3 className="font-bold text-lg mb-4">Do you really want to logout?</h3>
               <div className="flex justify-end gap-2">
                 <button
                   type="button"
-                  onClick={() => setIsLoggingOut(false)}
+                  onClick={() => setIsLoggingOut(false)} // Close the modal
                   className="px-4 py-2 bg-gray-200 rounded"
                 >
                   Cancel
                 </button>
                 <button
                   type="button"
-                  onClick={handleLogout}
+                  onClick={handleLogout} // Confirm logout
                   className="px-4 py-2 bg-blue-600 text-white rounded"
                 >
                   Logout
@@ -515,16 +519,15 @@ export default function ProfilePage() {
 function MenuItem({ icon, text, isLast = false, onClick }) {
   return (
     <div
-      className={`flex items-center justify-between p-3 ${
-        !isLast && "border-b border-blue-700"
-      } cursor-pointer hover:bg-blue-700 hover:bg-opacity-30 transition-colors`}
+      className={`flex items-center justify-between p-3 ${!isLast && "border-b border-blue-700"
+        } cursor-pointer hover:bg-blue-700 hover:bg-opacity-30 transition-colors`}
       onClick={onClick}
     >
       <div className="flex items-center">
         <span className="mr-3 text-blue-300">{getIconForMenuItem(text)}</span>
         <span>{text}</span>
       </div>
-      <span className="text-blue-300">{icon}</span>
+      <span className="text-blue-300">{<ChevronRight/>}</span>
     </div>
   );
 }
@@ -532,17 +535,17 @@ function MenuItem({ icon, text, isLast = false, onClick }) {
 function getIconForMenuItem(text) {
   switch (text) {
     case "My Transaction":
-      return <ChevronRight size={18} />;
+      return <Payment size={18} />;
     case "Withdraw":
-      return <ChevronRight size={18} />;
+      return <HandCoins size={18} />;
     case "KYC Verification":
       return <Shield size={18} />;
     case "Invite Friends":
       return <Users size={18} />;
     case "Terms and Conditions":
-      return <ChevronRight size={18} />;
+      return <Handshake size={18} />;
     case "Privacy Policy":
-      return <ChevronRight size={18} />;
+      return <Policy size={18} />;
     case "Contact Us":
       return <Phone size={18} />;
     case "Logout":

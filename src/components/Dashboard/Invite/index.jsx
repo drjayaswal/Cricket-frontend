@@ -8,14 +8,6 @@ import invitePic from '/assets/Frame.png';
 
 const InviteFriends = () => {
   const { user } = useContext(UserContext);
-  
-  useEffect(() => {
-    console.log(user)
-    if (!user.referralCode) {
-      user.referralCode = `${user.name.split(" ")[0]}${user._id.slice(0, 10)}`;
-    }
-  }, []);
-
   const handleCopyCode = () => {
     navigator.clipboard.writeText(user.referralCode);
     toast.success("Referral code copied!");
@@ -30,7 +22,7 @@ const InviteFriends = () => {
           <div className="grid gap-6 mb-8">
             <div className="space-y-6">
               <div className="invite flex flex-col gap-10 items-center justify-center rounded-xl p-6 transform hover:scale-105 transition-transform duration-300">
-                <img src={invitePic} alt="" srcset="" />
+                <img srcSet={invitePic} alt="" />
                 <h1
                 className='text-green-500'
                 style={{ fontSize: "2rem", fontWeight: "bold" }}

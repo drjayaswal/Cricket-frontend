@@ -65,7 +65,7 @@ function App() {
             <Route path="/team-stats" element={<PrivateRoute><Teamstats /></PrivateRoute>} />
             
             {/* Payment Routes */}
-            <Route path="/payment/status/:txnId" element={<PrivateRoute><PaymentStatus /></PrivateRoute>} />
+            <Route path="/payment/orders/:orderId" element={<PrivateRoute><PaymentStatus /></PrivateRoute>} />
             <Route path="/payment/status/undefined" element={<PrivateRoute>
               <NotFound/>
               </PrivateRoute>} />
@@ -94,7 +94,7 @@ function App() {
             <Route path="/forgot-password/changePass" element={<ChangePass/>} />
             
             {/* 404 Route */}
-            <Route path="/*" element={<>No Such Endpoints</>} />
+            <Route path="/*" element={<NotFound/>} />
 
           </Routes>
         </Router>
