@@ -3,15 +3,10 @@ import { UserContext } from "../../Context/UserContext";
 import Navbar from "./Navbar/Navbar";
 import { Calendar, MapPin } from "lucide-react";
 import homeBanner from "/assets/home-banner.png";
-import MatchCard from "./CurrentMatches/MatchCard";
 import SeriesCard from "./mini-components/SeriesCard";
+
 const Home = () => {
   const { seriesMatchData, isLoading, error } = useContext(UserContext);
-
-  useEffect(() => {
-    console.log(seriesMatchData);
-  }, [seriesMatchData]);
-
   if (isLoading)
     return (
       <p className="text-center text-lg font-semibold mt-10">

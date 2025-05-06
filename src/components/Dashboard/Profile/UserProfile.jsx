@@ -10,8 +10,7 @@ import { toast } from "react-toastify"
 import dmdp from "/assets/dmdp.jpg?url"
 import dpBanner from "/assets/dp-banner.jpg"
 import { Money, Payment, Policy } from "@mui/icons-material";
-import Transactions from "../Transactions";
-import { Paper } from "@mui/material";
+import plus from '/assets/plus.svg'
 
 export default function ProfilePage() {
   const [balance, setBalance] = useState(100.0);
@@ -43,15 +42,13 @@ export default function ProfilePage() {
       if (!token) {
         throw new Error('Please login again');
       }
-      const response = await fetch('http://localhost:5002/payment/start', {
+      const response = await fetch('http://localhost:5002/payment/create-order', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          name: user.name,
-          mobile: user.mobile,
           amount: amount
         })
       });
@@ -416,7 +413,7 @@ export default function ProfilePage() {
 
       {/* Balance Display Section */}
       <div className="p-4">
-        <div className="bg-blue-800 rounded-lg p-4 flex justify-between items-center">
+        <div className="bg-[#1671CC] rounded-lg p-4 flex justify-between items-center">
           <div>
             <p className="text-xs opacity-80">BALANCE</p>
             <p className="text-2xl font-bold">₹ {balance.toFixed(2)}</p>
@@ -424,9 +421,9 @@ export default function ProfilePage() {
           <div className="flex gap-2">
             <button
               onClick={() => setShowAddMoney(true)}
-              className="bg-blue-800 border-1 border-blue-800 hover:border-white rounded-full px-4 py-2 flex items-center"
-            >
-              <span className="mr-1">+</span>
+              className="border-1 hover:border-[#1671CC] border-transparent bg-transparent hover:bg-[#002865] rounded-full px-4 py-2 flex items-center hover:text-[#16711CC] text-white"
+              >
+                <img className="mr-2 w-5 h-5" src={plus} alt="" />
               <span className="">Add Money</span>
             </button>
           </div>
@@ -437,7 +434,7 @@ export default function ProfilePage() {
       <div className="p-4">
         <div className="mb-6">
           <h3 className="text-lg font-semibold mb-2">My Account</h3>
-          <div className="bg-blue-800 bg-opacity-30 rounded-lg">
+          <div className="bg-[#002865] bg-opacity-30 rounded-lg">
             <MenuItem
               icon={<ChevronRight size={18} />}
               text="My Transaction"
@@ -486,8 +483,8 @@ export default function ProfilePage() {
         )}
 
         <div>
-          <h3 className="text-lg font-semibold mb-2">Legality & Security</h3>
-          <div className="bg-blue-800 bg-opacity-30 rounded-lg">
+        <h3 className="text-lg font-semibold mb-2">Legality & Security</h3>
+          <div className="bg-[#002865] bg-opacity-30 rounded-lg">
             <MenuItem
               icon={<ChevronRight size={18} />}
               text="Terms and Conditions"
@@ -519,8 +516,7 @@ export default function ProfilePage() {
 function MenuItem({ icon, text, isLast = false, onClick }) {
   return (
     <div
-      className={`flex items-center justify-between p-3 ${!isLast && "border-b border-blue-700"
-        } cursor-pointer hover:bg-blue-700 hover:bg-opacity-30 transition-colors`}
+      className={`flex rounded-lg items-center justify-between p-3 cursor-pointer hover:bg-[#1671CC] hover:bg-opacity-30 transition-colors`}
       onClick={onClick}
     >
       <div className="flex items-center">

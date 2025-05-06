@@ -19,7 +19,7 @@ import BettingInterface from "./components/Dashboard/mini-components/BettingInte
 import { ToastContainer } from 'react-toastify'
 import UserProfile from "./components/Dashboard/Profile/UserProfile";
 import Portfolio from "./components/Dashboard/mini-components/Portfolio";
-import Teamstats from "./components/Dashboard/mini-components/Teamstats";
+import Teamstats from "./components/Dashboard/mini-components/MatchTabs";
 import Contact from "./components/Dashboard/StaticComponents/Contact";
 import About from "./components/Dashboard/StaticComponents/About";
 import Transactions from './components/Dashboard/Transactions';
@@ -59,53 +59,10 @@ function App() {
         <>
           <ToastContainer position="top-right" autoClose={1500} />
           <Router>
-<<<<<<< Updated upstream
-          <Routes>
-            {/* Main Dashboard Routes */}
-            <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
-            
-            {/* Cricket Match & Betting Routes */}
-            <Route path="/betting-interface" element={<PrivateRoute><BettingInterface /></PrivateRoute>} />
-            <Route path="/live-matches" element={<PrivateRoute><CurrentMatch /></PrivateRoute>} />
-            <Route path="/portfolio" element={<PrivateRoute><Portfolio /></PrivateRoute>} />
-            <Route path="/team-stats" element={<PrivateRoute><Teamstats /></PrivateRoute>} />
-            
-            {/* Payment Routes */}
-            <Route path="/payment/orders/:orderId" element={<PrivateRoute><PaymentStatus /></PrivateRoute>} />
-            <Route path="/payment/status/undefined" element={<PrivateRoute>
-              <NotFound/>
-              </PrivateRoute>} />
-            
-            {/* User Account & Profile Routes */}
-            <Route path="/UserProfile" element={<PrivateRoute><UserProfile/></PrivateRoute>}/>
-            <Route path="/transactions" element={<PrivateRoute><Transactions /></PrivateRoute>} />
-            <Route path="/withdraw" element={<PrivateRoute><Withdraw /></PrivateRoute>} />
-            <Route path="/kyc" element={<PrivateRoute><KYCVerification /></PrivateRoute>} />
-            <Route path="/invite" element={<PrivateRoute><InviteFriends /></PrivateRoute>} />
-            
-            {/* Static & Information Pages */}
-            <Route path="/contact" element={<PrivateRoute><Contact /></PrivateRoute>} />
-            <Route path="/about" element={<PrivateRoute><About /></PrivateRoute>} />
-            <Route path="/terms" element={<PrivateRoute><TermsAndConditions /></PrivateRoute>} />
-            <Route path="/privacy" element={<PrivateRoute><PrivacyPolicy /></PrivateRoute>} />          
-            
-            {/* Authentication Routes */}
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/verifyOtp" element={<VerifyOTP />} />
-            <Route path="/setpassword" element={<SetPassword />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/verifypass" element={<VerifyPass />} />
-            <Route path="/forgot-password" element={<ForgetPass/>}/> 
-            <Route path="/forgot-password/verify-password" element={<ForgetVerifyOtp/>}/> 
-            <Route path="/forgot-password/changePass" element={<ChangePass/>} />
-            
-            {/* 404 Route */}
-            <Route path="/*" element={<NotFound/>} />
-=======
+
             <Routes>
               {/* Main Dashboard Routes */}
               <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
->>>>>>> Stashed changes
 
               {/* Cricket Match & Betting Routes */}
               <Route path="/betting-interface" element={<PrivateRoute><BettingInterface /></PrivateRoute>} />

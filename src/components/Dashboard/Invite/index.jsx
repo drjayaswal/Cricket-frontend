@@ -4,7 +4,7 @@ import { useContext, useState, useEffect } from 'react';
 import { UserContext } from '../../../Context/UserContext';
 import { toast } from 'react-toastify';
 import invitePic from '/assets/Frame.png';              
-
+import Navbar from '../Navbar/Navbar';
 
 const InviteFriends = () => {
   const { user } = useContext(UserContext);
@@ -14,6 +14,8 @@ const InviteFriends = () => {
   };
 
   return (
+    <>
+    <Navbar/>
     <div className="min-h-screen text-white p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
         
@@ -21,7 +23,7 @@ const InviteFriends = () => {
           {/* Info Cards Section */}
           <div className="grid gap-6 mb-8">
             <div className="space-y-6">
-              <div className="invite flex flex-col gap-10 items-center justify-center rounded-xl p-6 transform hover:scale-105 transition-transform duration-300">
+              <div className="invite flex flex-col gap-10 items-center justify-center rounded-xl p-6 transform transition-transform duration-300">
                 <img srcSet={invitePic} alt="" />
                 <h1
                 className='text-green-500'
@@ -82,6 +84,7 @@ const InviteFriends = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { UserContext } from '../../../Context/UserContext.jsx';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import Navbar from '../Navbar/Navbar.jsx';
 const Withdraw = () => {
   const { user } = useContext(UserContext);
   const [withdrawAmount, setWithdrawAmount] = useState('');
@@ -85,6 +85,8 @@ const Withdraw = () => {
   };
 
   return (
+    <>
+    <Navbar/>
     <div className="min-h-screen bg-gradient-to-b from-blue-900 to-blue-950 text-white p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl md:text-4xl font-bold mb-8 text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-300">
@@ -117,12 +119,12 @@ const Withdraw = () => {
                   value={withdrawAmount}
                   onChange={(e) => setWithdrawAmount(e.target.value)}
                   className="w-full p-3 pl-8 rounded-lg bg-blue-700/30 border border-blue-500 
-                           focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="0.00"
                   min="0"
                   step="0.01"
                   disabled={isLoading}
-                />
+                  />
               </div>
               <p className="text-sm text-gray-400 mt-2">
                 Minimum: ₹{withdrawLimitLower.toLocaleString()} | Maximum: ₹{withdrawLimitUpper.toLocaleString()}
@@ -133,10 +135,10 @@ const Withdraw = () => {
               type="submit"
               disabled={isLoading}
               className="w-full bg-gradient-to-r from-blue-500 to-blue-600 
-                       hover:from-blue-600 hover:to-blue-700 text-white font-semibold 
-                       py-3 px-8 rounded-lg transform hover:scale-[1.02] 
-                       transition-all duration-300 shadow-lg disabled:opacity-50"
-            >
+              hover:from-blue-600 hover:to-blue-700 text-white font-semibold 
+              py-3 px-8 rounded-lg transform hover:scale-[1.02] 
+              transition-all duration-300 shadow-lg disabled:opacity-50"
+              >
               {isLoading ? 'Processing...' : 'Withdraw'}
             </button>
           </form>
@@ -151,8 +153,8 @@ const Withdraw = () => {
             <div className="space-y-4">
               {withdrawHistory.map((withdrawal) => (
                 <div
-                  key={withdrawal.id}
-                  className="flex justify-between items-center p-4 bg-blue-700/20 rounded-lg hover:bg-blue-700/30 transition-colors"
+                key={withdrawal.id}
+                className="flex justify-between items-center p-4 bg-blue-700/20 rounded-lg hover:bg-blue-700/30 transition-colors"
                 >
                   <div className="space-y-1">
                     <p className="text-gray-300">{withdrawal.date}</p>
@@ -180,8 +182,9 @@ const Withdraw = () => {
         closeOnClick
         pauseOnHover
         theme="light"
-      />
+        />
     </div>
+        </>
   );
 };
 

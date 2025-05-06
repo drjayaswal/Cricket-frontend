@@ -58,7 +58,7 @@ const Navbar = () => {
         <img
             src={user.profileImage ? user.profileImage : dmdp}
             alt="Profile"
-            className="w-14 h-10 rounded-full border-white object-cover"
+            className="w-16 h-12 rounded border-white object-cover"
           />
       </div>
     </div>
