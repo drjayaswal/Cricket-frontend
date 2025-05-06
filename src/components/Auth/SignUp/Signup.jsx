@@ -10,7 +10,7 @@ export default function Signup() {
   const { SignupPhone, setSignupPhone, sendOtp, handleGoogleSuccess } = useContext(UserContext);
   const [referredBy, setReferredBy] = useState("");
   const [error, setError] = useState("");
-  const [Name,setName] = useState("")
+  const [Name, setName] = useState("")
 
   const clientId = import.meta.env.VITE_CLIENT_ID
 
@@ -21,7 +21,7 @@ export default function Signup() {
 
     // Clean and format phone number
     let phoneNumber = SignupPhone.trim().replace(/\D/g, "");
-    
+
     // Validate phone number format
     if (phoneNumber.length !== 10 || !/^[6-9]\d{9}$/.test(phoneNumber)) {
       setError("Invalid phone number. Must be a valid 10-digit Indian mobile number.");
@@ -37,13 +37,13 @@ export default function Signup() {
 
       const response = await sendOtp(Name, phoneNumber, referredBy);
       if (response?.message === "OTP sent successfully") {
-          toast.success(response?.message);
-          navigate("/verifyOtp");
+        toast.success(response?.message);
+        navigate("/verifyOtp");
       } else if (response?.message === "User already exist") {
-          toast.info("User already exist. Please login with your registered phone number.");
-          navigate("/login");
+        toast.info("User already exist. Please login with your registered phone number.");
+        navigate("/login");
       } else {
-          toast.error(response?.error || "Failed to send OTP. Please try again.");
+        toast.error(response?.error || "Failed to send OTP. Please try again.");
       }
     } catch (error) {
       console.log(error);
@@ -70,7 +70,7 @@ export default function Signup() {
           {/* Form */}
           <div className="space-y-6">
             <div className="space-y-2">
-            <input
+              <input
                 type="text"
                 placeholder="Username*"
                 className="border-gray-700 cursor-pointer p-4 rounded-lg text-white outline-2 outline-gray-500 w-full"
@@ -81,25 +81,25 @@ export default function Signup() {
                 }}
               />
             </div>
-              <input
-                type="text"
-                placeholder="Phone Number*"
-                className="border-gray-700 cursor-pointer  p-4 rounded-lg text-white outline-2 outline-gray-500 w-full"
-                value={SignupPhone}
-                onChange={(e) => {
-                  setSignupPhone(e.target.value);
-                  setError("");
-                }}
-              />
-              <input
-                type="text"
-                placeholder="Referral Code (Optional)"
-                className="border-gray-700 cursor-pointer  p-4 rounded-lg text-white outline-2 outline-gray-500 w-full"
-                value={referredBy}
-                onChange={(e) => setReferredBy(e.target.value)}
-              />
-              {error && <p className="text-red-500 text-sm">{error}</p>}
-             
+            <input
+              type="text"
+              placeholder="Phone Number*"
+              className="border-gray-700 cursor-pointer  p-4 rounded-lg text-white outline-2 outline-gray-500 w-full"
+              value={SignupPhone}
+              onChange={(e) => {
+                setSignupPhone(e.target.value);
+                setError("");
+              }}
+            />
+            <input
+              type="text"
+              placeholder="Referral Code (Optional)"
+              className="border-gray-700 cursor-pointer  p-4 rounded-lg text-white outline-2 outline-gray-500 w-full"
+              value={referredBy}
+              onChange={(e) => setReferredBy(e.target.value)}
+            />
+            {error && <p className="text-red-500 text-sm">{error}</p>}
+
             <button
               className="w-full bg-[#1B8DFF] font-[Teko] tracking-wider py-3 text-2xl cursor-pointer rounded-lg text-white font-bold hover:bg-blue-600"
               onClick={handleNext}
@@ -130,10 +130,10 @@ export default function Signup() {
 
             <GoogleOAuthProvider clientId={clientId}>
               <button className="w-full flex justify-start cursor-pointer border-gray-700 p-2 rounded-lg text-xl items-center outline-2 outline-gray-500 text-gray-400">
-              <GoogleLogin
-                onSuccess={handleGoogleSuccess}
-                onError={() => toast.error("Google Login Failed")}
-              />
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={() => toast.error("Google Login Failed")}
+                />
               </button>
             </GoogleOAuthProvider>
           </div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { UserContext } from '../../../context/UserContext';
+import { UserContext } from '../../../Context/UserContext.jsx';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -35,9 +35,9 @@ const Withdraw = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     const amount = parseFloat(withdrawAmount);
-    
+
     if (!amount || amount <= 0) {
       toast.error('Please enter a valid amount');
       return;
@@ -63,14 +63,14 @@ const Withdraw = () => {
     try {
       // TODO: Add your API call here
       // await withdrawFunds(amount);
-      
+
       toast.update(toastId, {
         render: 'Withdrawal successful!',
         type: 'success',
         isLoading: false,
         autoClose: 3000
       });
-      
+
       setWithdrawAmount('');
     } catch (error) {
       toast.update(toastId, {
@@ -112,7 +112,7 @@ const Withdraw = () => {
                 <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
                   ₹
                 </span>
-                <input 
+                <input
                   type="number"
                   value={withdrawAmount}
                   onChange={(e) => setWithdrawAmount(e.target.value)}
@@ -129,7 +129,7 @@ const Withdraw = () => {
               </p>
             </div>
 
-            <button 
+            <button
               type="submit"
               disabled={isLoading}
               className="w-full bg-gradient-to-r from-blue-500 to-blue-600 
@@ -150,18 +150,17 @@ const Withdraw = () => {
             </h2>
             <div className="space-y-4">
               {withdrawHistory.map((withdrawal) => (
-                <div 
-                  key={withdrawal.id} 
+                <div
+                  key={withdrawal.id}
                   className="flex justify-between items-center p-4 bg-blue-700/20 rounded-lg hover:bg-blue-700/30 transition-colors"
                 >
                   <div className="space-y-1">
                     <p className="text-gray-300">{withdrawal.date}</p>
                     <p className="text-sm text-gray-400">TxID: {withdrawal.transactionId}</p>
-                    <span className={`text-xs px-2 py-1 rounded ${
-                      withdrawal.status === 'Completed' 
-                        ? 'bg-green-500/20 text-green-300'
-                        : 'bg-yellow-500/20 text-yellow-300'
-                    }`}>
+                    <span className={`text-xs px-2 py-1 rounded ${withdrawal.status === 'Completed'
+                      ? 'bg-green-500/20 text-green-300'
+                      : 'bg-yellow-500/20 text-yellow-300'
+                      }`}>
                       {withdrawal.status}
                     </span>
                   </div>
@@ -174,14 +173,14 @@ const Withdraw = () => {
           </div>
         )}
       </div>
-      <ToastContainer 
-  position="top-right"
-  autoClose={3000}
-  hideProgressBar={false}
-  closeOnClick
-  pauseOnHover
-  theme="light"
-/>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        closeOnClick
+        pauseOnHover
+        theme="light"
+      />
     </div>
   );
 };

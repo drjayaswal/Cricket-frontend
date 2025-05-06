@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 
 
 const Login = () => {
-  const { LoginPhone, setLoginPhone,handleGoogleSuccess } = useContext(UserContext);
+  const { LoginPhone, setLoginPhone, handleGoogleSuccess } = useContext(UserContext);
 
   const clientId = import.meta.env.VITE_CLIENT_ID
 
@@ -16,10 +16,10 @@ const Login = () => {
 
   const handleNext = (e) => {
     e.preventDefault();
-    
+
     // Clean and format phone number
     let phoneNumber = LoginPhone.trim().replace(/\D/g, "");
-    
+
     // Validate phone number format
     if (phoneNumber.length !== 10 || !/^[6-9]\d{9}$/.test(phoneNumber)) {
       setError("Invalid phone number. Must be a valid 10-digit Indian mobile number.");
