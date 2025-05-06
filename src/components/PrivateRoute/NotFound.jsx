@@ -24,7 +24,7 @@ const NotFound = () => {
         The page you're looking for doesn't exist or has been moved.
       </p>
       <button
-        onClick={() => navigate('/UserProfile')}
+        onClick={() => navigate('/')}
         style={{
           marginTop: '20px',
           padding: '10px 20px',
