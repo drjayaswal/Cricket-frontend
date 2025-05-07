@@ -1,19 +1,11 @@
 import { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
 import "./App.css";
-import Signup from "./components/Auth/SignUp/Signup";
 import Preloader from "./components/preloader/Preloader";
 import { UserProvider } from "./Context/UserContext";
-import SetPassword from "./components/Auth/SignUp/SetPassword";
-import VerifyOTP from "./components/Auth/SignUp/VerifyOTP";
 import Home from "./components/Dashboard/Home";
-import Login from "./components/Auth/Login/Login";
-import VerifyPass from "./components/Auth/Login/VerifyPass";
 import PrivateRoute from "./components/PrivateRoute/PrivateRoute";
-import ForgetPass from "./components/Auth/Forgetpass/ForgetPass";
-import ForgetVerifyOtp from "./components/Auth/Forgetpass/ForgetVerifyOtp";
 import NotFound from "./components/PrivateRoute/NotFound";
-import ChangePass from "./components/Auth/Forgetpass/ChangePass";
 import CurrentMatch from "./components/Dashboard/CurrentMatches/CurrentMatch";
 import BettingInterface from "./components/Dashboard/mini-components/BettingInterface";
 import { ToastContainer } from 'react-toastify'
