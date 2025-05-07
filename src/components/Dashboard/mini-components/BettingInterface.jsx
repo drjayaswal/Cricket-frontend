@@ -173,18 +173,22 @@ const BettingInterface = () => {
         <div className="mb-6">
           <div className="relative mb-2">
             <span className="absolute top-[-40px] left-1/2 transform -translate-x-1/2 bg-red-600 text-white text-xs px-3 py-1 rounded-md">
-              {statusMessage !== "Loading..."
-                ? statusMessage
-                : matchData?.status}
+              {matchData?.status}
             </span>
           </div>
           <h1 className="text-center text-xl md:text-2xl font-bold mt-6">
             {currentMatch.team1} vs {currentMatch.team2}
           </h1>
-          <p className="text-center text-gray-400 mt-2">
-            Current Innings : {currentInnings?.batTeamName} -{" "}
-            {currentInnings?.score}/{currentInnings?.wickets?.length || 0}(
-            {currentInnings?.overs} ov, RR: {currentInnings?.runRate})
+          <p className="text-center text-gray-400 mt-2">Current Innings:
+            {currentInnings ? (
+              <>
+                {currentInnings.batTeamName} - {currentInnings.score}/
+                {currentInnings.wickets?.length || 0} ({currentInnings.overs}{" "}
+                ov, RR: {currentInnings.runRate?.toFixed(2) || "0.00"})
+              </>
+            ) : (
+              " Not Started"
+            )}
           </p>
           {previousInnings && (
             <p className="text-center text-gray-400 mt-1">

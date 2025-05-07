@@ -19,6 +19,15 @@ const MatchCard = ({ match }) => {
   } else {
     timeDisplay = `${seconds}s`;
   }
+  function getTeamAbbreviation(teamName) {
+    if (!teamName) return "";
+    const words = teamName.trim().split(/\s+/);
+    if (words.length === 1) {
+      return teamName.slice(0, 3).toUpperCase();
+    } else {
+      return words.map(word => word[0]).join("").toUpperCase();
+    }
+  }
   useEffect(() => {
     console.log(match);
   }, []);
@@ -56,36 +65,39 @@ const MatchCard = ({ match }) => {
               alt={match.team1}
               className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 mx-auto mb-[6px] rounded-full"
             />
-            <p className="font-[400] text-sm sm:text-base md:text-lg">
-              {match.team1}
-            </p>
-            <p className="text-gray-400 text-xs sm:text-sm">
-              {match.team1City}
-            </p>
+<p className="font-[400] text-sm sm:text-base md:text-lg">
+  <span className="inline sm:hidden">{getTeamAbbreviation(match.team1)}</span>
+  <span className="hidden sm:inline">{match.team1}</span>
+</p>
           </div>
-
-          {/* Countdown */}
-          <div className="mx-1 sm:mx-2 w-1/3 flex justify-center flex-col gap-1 items-center">
-            {timeDiff > 0 ? "Starts in" : ""}
-            <div
-              className={`px-2 sm:px-3 md:px-4 py-1 sm:py-2 rounded-lg w-1/3 ${
-                timeDiff > 0
-                  ? "bg-[#FF9500] text-black font-[400] w-fit"
-                  : "bg-[#e53935] text-white font-[400] w-fit live"
-              }`}
-            >
-              {timeDiff > 0 ? (
-                <p className="text-s sm:text-md">{hours <= 24 ? timeDisplay : `${Math.floor(hours / 24)}D ${hours % 24}h`}</p>
-              ) : match.isMatchComplete ? (
-                "Over"
-              ) : (
-                <div className="flex text-xl">
-                <DotIcon/>
-                Live
-                </div>
-              )}
-            </div>
+        {/* Countdown or Live */}
+        <div className="flex flex-col items-center w-full sm:w-1/3 text-center gap-1">
+          {timeDiff > 0 ? (
+            <span className="text-sm sm:text-base text-white">Starts in</span>
+          ) : null}
+          <div
+            className={`px-3 py-1 rounded-lg text-base font-medium ${
+              timeDiff > 0
+                ? "bg-[#FF9500] text-black"
+                : match.isMatchComplete
+                ? "bg-gray-500 text-white"
+                : ""
+            }`}
+          >
+            {timeDiff > 0
+              ? hours <= 24
+                ? timeDisplay
+                : `${Math.floor(hours / 24)}D ${hours % 24}h`
+              : match.isMatchComplete
+              ? "Over"
+              : (
+                  <span className="flex items-center gap-1 text-lg">
+                    <Dot className="text-[#e53935] w-5 h-5 animate-pulse" />
+                    <span className="text-[#e53935] font-medium">Live</span>
+                  </span>
+                )}
           </div>
+        </div>
 
           {/* Team 2 */}
           <div className="text-center w-1/3">
@@ -94,12 +106,10 @@ const MatchCard = ({ match }) => {
               alt={match.team2}
               className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 mx-auto mb-[6px] rounded-full"
             />
-            <p className="font-[400] text-sm sm:text-base md:text-lg">
-              {match.team2}
-            </p>
-            <p className="text-gray-400 text-xs sm:text-sm">
-              {match.team2City}
-            </p>
+<p className="font-[400] text-sm sm:text-base md:text-lg">
+  <span className="inline sm:hidden">{getTeamAbbreviation(match.team2)}</span>
+  <span className="hidden sm:inline">{match.team2}</span>
+</p>
           </div>
         </div>
       </div>

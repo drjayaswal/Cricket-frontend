@@ -816,12 +816,12 @@ const Portfolio = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <span className="text-lg mr-2">
-                  Quantity:{" "}
+                  Qty {" "}
                   {sellDetails.reduce((acc, s) => acc + s.quantity, 0)}
                 </span>{" "}
                 |
                 <span className="text-lg ml-2">
-                  Average ₹
+                  Avg ₹
                   {(
                     sellDetails.reduce(
                       (acc, s) => acc + s.buyPrice * s.quantity,
@@ -863,19 +863,19 @@ const Portfolio = () => {
 
                   {/* Buy Price */}
                   <div className="text-center w-full lg:w-auto">
-                    <p className="text-sm text-gray-400">Buy Price</p>
+                    <p className="text-sm text-gray-300">Buy Price</p>
                     <p className="text-lg font-semibold">₹{s.buyPrice}</p>
                   </div>
 
                   {/* Sell Price */}
                   <div className="text-center w-full lg:w-auto">
-                    <p className="text-sm text-gray-400">Sell Price</p>
+                    <p className="text-sm text-gray-300">Sell Price</p>
                     <p className="text-lg font-semibold">₹{s.sellPrice}</p>
                   </div>
 
                   {/* Profit / Loss */}
                   <div className="text-center w-full lg:w-auto">
-                    <p className="text-sm text-gray-400">
+                    <p className="text-sm text-gray-300">
                       {s.profit >= 0 ? "Profit" : "Loss"}
                     </p>
                     <p
@@ -889,7 +889,7 @@ const Portfolio = () => {
 
                   {/* Percentage */}
                   <div className="text-center w-full lg:w-auto">
-                    <p className="text-sm text-gray-400">Percentage</p>
+                    <p className="text-sm text-gray-300">Percentage</p>
                     <p
                       className={`text-lg font-semibold ${
                         s.percentage >= 0 ? "text-green-400" : "text-red-400"
@@ -921,11 +921,11 @@ const Portfolio = () => {
             ))}
           </div>
           {/* Summary Footer */}
-          <div className="p-4 bg-[#001e42]">
+          <div className="pl-4 pr-4 pt-3 pb-3 bg-[#001e42] border-t-2 border-[#1671CC]">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <p className="text-gray-300">Total Invested</p>
-                <p className="text-xl font-bold">
+                <p className="text-white">Total Invested</p>
+                <p className="text-xl font-bold text-gray-300">
                   ₹
                   {sellDetails
                     .reduce((acc, s) => acc + s.buyPrice * s.quantity, 0)
@@ -933,7 +933,7 @@ const Portfolio = () => {
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-gray-300">Current Value</p>
+                <p className="text-white">Current Value</p>
                 <p
                   className={`text-xl font-bold ${
                     sellDetails.reduce(
