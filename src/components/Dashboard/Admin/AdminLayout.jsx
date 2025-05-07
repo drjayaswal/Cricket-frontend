@@ -1,4 +1,4 @@
-import { Outlet, Link, useParams, useLocation } from "react-router-dom";
+import { Outlet, Link, useParams, useLocation, useNavigate } from "react-router-dom";
 import Button from "../../../components/ui/Button";
 import { LogOut, ChevronDown, Menu, X } from "lucide-react";
 import { cn } from "../../../lib/utils";
@@ -70,6 +70,13 @@ const MobileSidebar = ({ isOpen, onClose }) => {
 
 export default function AdminLayout() {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    // Perform logout logic here
+    localStorage.removeItem("token");
+    navigate("/admin/login") // Redirect to login page
+  }
 
   return (
     <>

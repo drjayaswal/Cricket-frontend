@@ -1,19 +1,11 @@
 import { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
 import "./App.css";
-import Signup from "./components/Auth/SignUp/Signup";
 import Preloader from "./components/preloader/Preloader";
 import { UserProvider } from "./Context/UserContext";
-import SetPassword from "./components/Auth/SignUp/SetPassword";
-import VerifyOTP from "./components/Auth/SignUp/VerifyOTP";
 import Home from "./components/Dashboard/Home";
-import Login from "./components/Auth/Login/Login";
-import VerifyPass from "./components/Auth/Login/VerifyPass";
 import PrivateRoute from "./components/PrivateRoute/PrivateRoute";
-import ForgetPass from "./components/Auth/Forgetpass/ForgetPass";
-import ForgetVerifyOtp from "./components/Auth/Forgetpass/ForgetVerifyOtp";
 import NotFound from "./components/PrivateRoute/NotFound";
-import ChangePass from "./components/Auth/Forgetpass/ChangePass";
 import CurrentMatch from "./components/Dashboard/CurrentMatches/CurrentMatch";
 import BettingInterface from "./components/Dashboard/mini-components/BettingInterface";
 import { ToastContainer } from 'react-toastify'
@@ -34,6 +26,7 @@ import AdminDashboard from "./components/Dashboard/Admin/Dashboard";
 import Notifications from "./components/Dashboard/Admin/Notifications";
 import RequireAdminAuth from "./components/Auth/Admin/LoginLayout";
 import AdminLogin from "./components/Auth/Admin/Login"
+import AuthPage from "./components/Auth/AuthPage";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -59,7 +52,6 @@ function App() {
         <>
           <ToastContainer position="top-right" autoClose={1500} />
           <Router>
-
             <Routes>
               {/* Main Dashboard Routes */}
               <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
@@ -88,14 +80,15 @@ function App() {
               <Route path="/privacy" element={<PrivateRoute><PrivacyPolicy /></PrivateRoute>} />
 
               {/* Authentication Routes */}
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/verifyOtp" element={<VerifyOTP />} />
-              <Route path="/setpassword" element={<SetPassword />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/verifypass" element={<VerifyPass />} />
-              <Route path="/forgot-password" element={<ForgetPass />} />
-              <Route path="/forgot-password/verify-password" element={<ForgetVerifyOtp />} />
-              <Route path="/forgot-password/changePass" element={<ChangePass />} />
+              <Route path="/login" element={<AuthPage />} />
+              {/* <Route path="/signup" element={<Signup />} /> */}
+              {/* <Route path="/verifyOtp" element={<VerifyOTP />} /> */}
+              {/* <Route path="/setpassword" element={<SetPassword />} /> */}
+              {/* <Route path="/login" element={<Login />} /> */}
+              {/* <Route path="/verifypass" element={<VerifyPass />} /> */}
+              {/* <Route path="/forgot-password" element={<ForgetPass />} /> */}
+              {/* <Route path="/forgot-password/verify-password" element={<ForgetVerifyOtp />} /> */}
+              {/* <Route path="/forgot-password/changePass" element={<ChangePass />} /> */}
 
               {/* 404 Route */}
               <Route path="/*" element={<NotFound />} />

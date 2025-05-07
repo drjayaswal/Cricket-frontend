@@ -80,7 +80,7 @@ export const UserProvider = ({ children }) => {
 
   const setPasswordHandler = async (mobile, password) => {
     await axios.post(`${BACKEND_URL}/auth/set-password`, { mobile, password });
-    alert("Signup complete! Now you can login");
+    toast.info("Signup complete! Now you can login");
   };
 
   const login = async (mobile, password) => {
@@ -91,7 +91,7 @@ export const UserProvider = ({ children }) => {
       });
       if (response.data.token) {
         localStorage.setItem("token", response.data.token);
-        alert("Login successful! Welcome to Dashboard.");
+        toast.info("Login successful! Welcome to Dashboard.");
         return { success: true, message: response.data.message };
       }
     } catch (error) {
@@ -106,7 +106,7 @@ export const UserProvider = ({ children }) => {
     const tokenId = credentialResponse.credential;
 
     if (!tokenId) {
-      alert("Google authentication failed!");
+      toast.info("Google authentication failed!");
       return;
     }
 
@@ -115,7 +115,7 @@ export const UserProvider = ({ children }) => {
     });
     if (response.data.token) {
       localStorage.setItem("token", response.data.token);
-      alert("Login successful! Welcome to Dashboard.");
+      toast.info("Login successful! Welcome to Dashboard.");
       window.location.href = "/";
       return { success: true, message: response.data.message };
     }
