@@ -9,6 +9,7 @@ import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL
 const CLIENT_ID = import.meta.env.VITE_CLIENT_ID
 
+
 // Validation functions
 const validatePassword = (password) => {
   if (!password) return "Password is required";
@@ -70,7 +71,7 @@ const formatPhoneNumber = (phone) => {
 const AuthPage = () => {
   const [mode, setMode] = useState("login"); // 'login' | 'signup' | 'forgot'
   const [step, setStep] = useState("form"); // 'form' | 'otp'
-  const [form, setForm] = useState({ name: "", phone: "", password: "", new_password: "" });
+  const [form, setForm] = useState({ name: "", phone: "", password: "", new_password: "", referralCode: "" });
   const [otp, setOtp] = useState("");
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
@@ -177,6 +178,7 @@ const AuthPage = () => {
         name: form.name,
         mobile: formattedPhone,
         password: form.password,
+        referralCode: form.referralCode,
         otp
       });
       ;
@@ -185,7 +187,7 @@ const AuthPage = () => {
         setInfo("Signup successful! Please login.");
         setMode("login");
         setStep("form");
-        setForm({ name: "", phone: form.phone, password: "", new_password: "" }); // Keep the phone number for easier login
+        setForm({ name: "", phone: form.phone, password: "", new_password: "" ,referralCode:""}); // Keep the phone number for easier login
         setOtp("");
       }
     } catch (error) {
@@ -413,6 +415,16 @@ const AuthPage = () => {
                     value={form.password}
                     onChange={handleChange}
                     required
+                    className="border-gray-700  p-4 rounded-lg text-white outline-2 outline-gray-500 w-full"
+                  />
+                </div>
+                <div>
+                  <input
+                    type="text"
+                    name="referralCode"
+                    placeholder="Referral Code (Optional)"
+                    value={form.referralCode}
+                    onChange={handleChange}
                     className="border-gray-700  p-4 rounded-lg text-white outline-2 outline-gray-500 w-full"
                   />
                 </div>
