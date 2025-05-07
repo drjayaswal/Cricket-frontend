@@ -12,6 +12,11 @@ const Login = () => {
   const clientId = import.meta.env.VITE_CLIENT_ID
 
   const navigate = useNavigate();
+  if (localStorage.getItem("token")) {
+    navigate("/");
+  }
+
+
   const [error, setError] = useState("");
 
   const handleNext = (e) => {

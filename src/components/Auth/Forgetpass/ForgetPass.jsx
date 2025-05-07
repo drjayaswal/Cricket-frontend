@@ -6,54 +6,54 @@ import { toast } from "react-toastify";
 
 const ForgetPass = () => {
 
-  const {ForgetPhone,setForgetPhone,sendForgotPasswordOtp} = useContext(UserContext)
-  const [error,setError] = useState("")
+  const { ForgetPhone, setForgetPhone, sendForgotPasswordOtp } = useContext(UserContext)
+  const [error, setError] = useState("")
 
   const navigate = useNavigate()
 
   const handleForgotPasswordOtp = async (e) => {
     e.preventDefault();
 
-  
+
     let phoneNumber = ForgetPhone.trim();
-  
+
     // Remove spaces, dashes, or non-numeric characters
     phoneNumber = phoneNumber.replace(/\D/g, "");
-  
+
     // Ensure it starts with +91
     if (!phoneNumber.startsWith("91")) {
       phoneNumber = `91${phoneNumber}`;
     }
-    
+
     phoneNumber = `+${phoneNumber}`;
-  
+
     // Validate Indian phone number
     const phoneRegex = /^\+91[6-9]\d{9}$/;
     if (!phoneRegex.test(phoneNumber)) {
       setError("Invalid phone number. Must be a valid Indian number (+91XXXXXXXXXX).");
       return;
     }
-  
+
     setForgetPhone(phoneNumber);
     setError("");
-  
+
     try {
       const response = await sendForgotPasswordOtp(phoneNumber);
-  
+
       if (response?.message === "OTP sent successfully for password reset") {
         toast.success(response?.message);
         navigate("/forgot-password/verify-password"); // Navigate to OTP verification page
       } else if (response?.message === "User not found") {
         toast.info("No account found with this phone number. Please register first.");
-        navigate("/signup"); 
+        navigate("/signup");
       } else {
         toast.error(response?.error || "Failed to send OTP. Please try again.");
       }
     } catch (error) {
-      console.log(error,"koi or dikkat hai");
+      console.log(error, "koi or dikkat hai");
     }
   };
-  
+
 
   return (
     <>
@@ -65,7 +65,7 @@ const ForgetPass = () => {
               Galaxy
             </p>
             <p className="text-center text-4xl font-bold text-white font-[Teko] tracking-wider">
-             Forget Password
+              Forget Password
             </p>
             <p className='text-center text-gray-600'>We’ll send you a OTP for verification</p>
           </div>
@@ -80,7 +80,7 @@ const ForgetPass = () => {
                     placeholder="Mobile number*"
                     className="border-gray-700 cursor-pointer  p-4 rounded-lg text-white outline-2 outline-gray-500 w-full"
                     value={ForgetPhone}
-                    onChange={(e)=>setForgetPhone(e.target.value)}
+                    onChange={(e) => setForgetPhone(e.target.value)}
                   />
                 </div>
               </div>
@@ -106,7 +106,7 @@ const ForgetPass = () => {
           </div>
         </div>
       </div>
- 
+
     </>
   )
 }

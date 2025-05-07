@@ -34,6 +34,7 @@ import AdminDashboard from "./components/Dashboard/Admin/Dashboard";
 import Notifications from "./components/Dashboard/Admin/Notifications";
 import RequireAdminAuth from "./components/Auth/Admin/LoginLayout";
 import AdminLogin from "./components/Auth/Admin/Login"
+import AuthPage from "./components/Auth/AuthPage";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -59,7 +60,6 @@ function App() {
         <>
           <ToastContainer position="top-right" autoClose={1500} />
           <Router>
-
             <Routes>
               {/* Main Dashboard Routes */}
               <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
@@ -88,14 +88,15 @@ function App() {
               <Route path="/privacy" element={<PrivateRoute><PrivacyPolicy /></PrivateRoute>} />
 
               {/* Authentication Routes */}
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/verifyOtp" element={<VerifyOTP />} />
-              <Route path="/setpassword" element={<SetPassword />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/verifypass" element={<VerifyPass />} />
-              <Route path="/forgot-password" element={<ForgetPass />} />
-              <Route path="/forgot-password/verify-password" element={<ForgetVerifyOtp />} />
-              <Route path="/forgot-password/changePass" element={<ChangePass />} />
+              <Route path="/login" element={<AuthPage />} />
+              {/* <Route path="/signup" element={<Signup />} /> */}
+              {/* <Route path="/verifyOtp" element={<VerifyOTP />} /> */}
+              {/* <Route path="/setpassword" element={<SetPassword />} /> */}
+              {/* <Route path="/login" element={<Login />} /> */}
+              {/* <Route path="/verifypass" element={<VerifyPass />} /> */}
+              {/* <Route path="/forgot-password" element={<ForgetPass />} /> */}
+              {/* <Route path="/forgot-password/verify-password" element={<ForgetVerifyOtp />} /> */}
+              {/* <Route path="/forgot-password/changePass" element={<ChangePass />} /> */}
 
               {/* 404 Route */}
               <Route path="/*" element={<NotFound />} />

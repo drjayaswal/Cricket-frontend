@@ -1,7 +1,5 @@
-"use client";
-
 import { useState, useRef, useContext } from "react"
-import { Camera, ChevronRight, Edit, HandCoins, Handshake, LogOut, Phone, Shield, User, Users } from "lucide-react"
+import { Camera, ChevronRight, UserLock, Edit, HandCoins, Handshake, LogOut, Phone, Shield, User, Users } from "lucide-react"
 import { UserContext } from "../../../Context/UserContext"
 import { useNavigate } from "react-router-dom"
 import CancelIcon from '@mui/icons-material/Cancel';
@@ -11,6 +9,9 @@ import dmdp from "/assets/dmdp.jpg?url"
 import dpBanner from "/assets/dp-banner.jpg"
 import { Money, Payment, Policy } from "@mui/icons-material";
 import plus from '/assets/plus.svg'
+
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL
+const CLIENT_ID = import.meta.env.VITE_CLIENT_ID
 
 export default function ProfilePage() {
   const [balance, setBalance] = useState(100.0);
@@ -26,9 +27,6 @@ export default function ProfilePage() {
   const navigate = useNavigate();
 
 
-
-
-
   const redirectToPayment = (url) => {
     const anchor = document.createElement('a');
     anchor.href = url;
@@ -42,7 +40,7 @@ export default function ProfilePage() {
       if (!token) {
         throw new Error('Please login again');
       }
-      const response = await fetch('http://localhost:5002/payment/create-order', {
+      const response = await fetch(`${BACKEND_URL}/payment/start`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -230,6 +228,15 @@ export default function ProfilePage() {
       SetOTP("");
     }
   };
+
+  const handleNavigateAdmin = async () => {
+    const isAdmin = await isUserAdmin()
+    if (data.status == 200) {
+      navigate("/admin/dashboard");
+    } else {
+      toast.error(data.message || "Failed to navigate to admin dashboard");
+    }
+  }
 
   return (
     <div className="min-h-screen realtive text-white">
@@ -422,8 +429,8 @@ export default function ProfilePage() {
             <button
               onClick={() => setShowAddMoney(true)}
               className="border-1 hover:border-[#1671CC] border-transparent bg-transparent hover:bg-[#002865] rounded-full px-4 py-2 flex items-center hover:text-[#16711CC] text-white"
-              >
-                <img className="mr-2 w-5 h-5" src={plus} alt="" />
+            >
+              <img className="mr-2 w-5 h-5" src={plus} alt="" />
               <span className="">Add Money</span>
             </button>
           </div>
@@ -483,7 +490,7 @@ export default function ProfilePage() {
         )}
 
         <div>
-        <h3 className="text-lg font-semibold mb-2">Legality & Security</h3>
+          <h3 className="text-lg font-semibold mb-2">Legality & Security</h3>
           <div className="bg-[#002865] bg-opacity-30 rounded-lg">
             <MenuItem
               icon={<ChevronRight size={18} />}
@@ -499,6 +506,12 @@ export default function ProfilePage() {
               icon={<ChevronRight size={18} />}
               text="Contact Us"
               onClick={() => handleMenuClick("Contact Us")}
+            />
+            <MenuItem
+              icon={<UserLock size={18} />}
+              text="Admin Dashboard"
+              isLast={true}
+              onClick={handleNavigateAdmin}
             />
             <MenuItem
               icon={<LogOut size={18} />}
@@ -523,7 +536,7 @@ function MenuItem({ icon, text, isLast = false, onClick }) {
         <span className="mr-3 text-blue-300">{getIconForMenuItem(text)}</span>
         <span>{text}</span>
       </div>
-      <span className="text-blue-300">{<ChevronRight/>}</span>
+      <span className="text-blue-300">{<ChevronRight />}</span>
     </div>
   );
 }
