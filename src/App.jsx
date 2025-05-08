@@ -11,7 +11,7 @@ import BettingInterface from "./components/Dashboard/mini-components/BettingInte
 import { ToastContainer } from 'react-toastify'
 import UserProfile from "./components/Dashboard/Profile/UserProfile";
 import Portfolio from "./components/Dashboard/mini-components/Portfolio";
-import Teamstats from "./components/Dashboard/mini-components/MatchTabs";
+import Teamstats from "./components/Dashboard/mini-components/Teamstats";
 import Contact from "./components/Dashboard/StaticComponents/Contact";
 import About from "./components/Dashboard/StaticComponents/About";
 import Transactions from './components/Dashboard/Transactions';
@@ -20,7 +20,7 @@ import KYCVerification from './components/Dashboard/KYC';
 import InviteFriends from './components/Dashboard/Invite';
 import TermsAndConditions from './components/Dashboard/Legal/TermsAndConditions';
 import PrivacyPolicy from './components/Dashboard/Legal/PrivacyPolicy';
-import PaymentStatus from './components/Payments/PaymentStatus';
+import OrderStatus from './components/Payments/OrderStatus';
 import AdminLayout from "./components/Dashboard/Admin/AdminLayout";
 import AdminDashboard from "./components/Dashboard/Admin/Dashboard";
 import Notifications from "./components/Dashboard/Admin/Notifications";
@@ -63,8 +63,8 @@ function App() {
               <Route path="/team-stats" element={<PrivateRoute><Teamstats /></PrivateRoute>} />
 
               {/* Payment Routes */}
-              <Route path="/payment/status/:txnId" element={<PrivateRoute><PaymentStatus /></PrivateRoute>} />
-              <Route path="/payment/status/undefined" element={<PrivateRoute> <NotFound /> </PrivateRoute>} />
+              <Route path="/payment/orders/:orderId" element={<PrivateRoute><OrderStatus /></PrivateRoute>} />
+              {/* <Route path="/payment/status/undefined" element={<PrivateRoute> <NotFound /> </PrivateRoute>} /> */}
 
               {/* User Account & Profile Routes */}
               <Route path="/UserProfile" element={<PrivateRoute><UserProfile /></PrivateRoute>} />

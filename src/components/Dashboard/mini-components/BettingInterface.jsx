@@ -184,7 +184,7 @@ const BettingInterface = () => {
               <>
                 {currentInnings.batTeamName} - {currentInnings.score}/
                 {currentInnings.wickets?.length || 0} ({currentInnings.overs}{" "}
-                ov, RR: {currentInnings.runRate?.toFixed(2) || "0.00"})
+                ov, RR: {currentInnings.runRate || "0.00"})
               </>
             ) : (
               " Not Started"

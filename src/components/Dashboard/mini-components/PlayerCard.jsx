@@ -40,9 +40,9 @@ const PlayerCard = ({ player,index ,matchId}) => {
     // Decrease price by 0.5 per dot ball
     newPrice -= player.dots * 0.5;
 
-    if (player.wicketCode !== "") {
-      return newPrice * 0.7;
-    }
+    // if (player.wicketCode !== "") {
+    //   return newPrice * 0.7;
+    // }
     
     return newPrice;
   };

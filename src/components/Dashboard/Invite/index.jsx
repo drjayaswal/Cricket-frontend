@@ -7,8 +7,8 @@ import invitePic from "/assets/Frame.png";
 import Navbar from "../Navbar/Navbar";
 import axios from "axios";
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL
-const CLIENT_ID = import.meta.env.VITE_CLIENT_ID
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+const CLIENT_ID = import.meta.env.VITE_CLIENT_ID;
 
 const InviteFriends = () => {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -16,11 +16,13 @@ const InviteFriends = () => {
   const [generatedCode, setGeneratedCode] = useState("");
   const { user } = useContext(UserContext);
 
-  const handleGenerateCode = async() => {
+  const handleGenerateCode = async () => {
     if (isGenerating) return;
     setIsGenerating(true);
     const phone = user.mobile;
-    const newCode = `CRST-${encrypt(phone.replace("+", ""))}-${generateAlphaCode()}`;
+    const newCode = `CRST-${encrypt(
+      phone.replace("+", "")
+    )}-${generateAlphaCode()}`;
     setGeneratedCode(newCode);
     toast.success("New referral code generated!");
 
@@ -40,15 +42,15 @@ const InviteFriends = () => {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      body:JSON.stringify({
-        referralCode: newCode
-      })
+      body: JSON.stringify({
+        referralCode: newCode,
+      }),
     });
-    const status = data.status
-    if(status !== 200){
-      console.error("LOL")
+    const status = data.status;
+    if (status !== 200) {
+      console.error("LOL");
     }
-  
+
     const interval = setInterval(() => {
       setCooldown((prev) => {
         if (prev <= 1) {
@@ -94,7 +96,6 @@ const InviteFriends = () => {
             >
               {isGenerating ? `Wait for ${cooldown}s` : "New Referral Code"}
             </button>
-
             {generatedCode && (
               <div className="space-y-4 animate-fade-in">
                 <div className="flex flex-col py-3 px-6 rounded-xl">
@@ -108,8 +109,13 @@ const InviteFriends = () => {
                 >
                   Copy Code
                 </button>
+                <p className="text-sm text-blue-200 font-medium">
+                  Referral codes are valid for{" "}
+                  <span className="text-green-400 font-bold">24 hours</span>{" "}
+                  only.
+                </p>
               </div>
-            )}
+            )}{" "}
           </div>
         </div>
 

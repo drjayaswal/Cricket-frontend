@@ -1,20 +1,36 @@
-import { useState, useRef, useContext } from "react"
-import { Camera, ChevronRight, UserLock, Edit, HandCoins, Handshake, LogOut, Phone, Shield, User, Users } from "lucide-react"
-import { UserContext } from "../../../Context/UserContext"
-import { useNavigate } from "react-router-dom"
-import CancelIcon from '@mui/icons-material/Cancel';
-import VerifiedIcon from '@mui/icons-material/Verified';
-import { toast } from "react-toastify"
-import dmdp from "/assets/dmdp.jpg?url"
-import dpBanner from "/assets/dp-banner.jpg"
+import { useState, useRef, useContext } from "react";
+import {
+  Camera,
+  ChevronRight,
+  UserLock,
+  Edit,
+  HandCoins,
+  Handshake,
+  LogOut,
+  Phone,
+  Shield,
+  User,
+  Users,
+} from "lucide-react";
+import { UserContext } from "../../../Context/UserContext";
+import { useNavigate } from "react-router-dom";
+import CancelIcon from "@mui/icons-material/Cancel";
+import VerifiedIcon from "@mui/icons-material/Verified";
+import { toast } from "react-toastify";
+import dmdp from "/assets/dmdp.jpg?url";
+import dpBanner from "/assets/dp-banner.jpg";
 import { Money, Payment, Policy } from "@mui/icons-material";
-import plus from '/assets/plus.svg'
+import plus from "/assets/plus.svg";
+import { load } from "@cashfreepayments/cashfree-js";
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL
-const CLIENT_ID = import.meta.env.VITE_CLIENT_ID
+const cashfree = await load({
+  mode: "sandbox",
+});
+
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+const CLIENT_ID = import.meta.env.VITE_CLIENT_ID;
 
 export default function ProfilePage() {
-  const [balance, setBalance] = useState(100.0);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [showEditPhone, setShowEditPhone] = useState(false);
   const [showVerifyOtp, setShowVerifyOtp] = useState(false);
@@ -23,62 +39,53 @@ export default function ProfilePage() {
   const [addAmount, setAddAmount] = useState("");
   const [OTP, SetOTP] = useState("");
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const { logout, user, uploadImage, VerifyMobile, verifyMobileOtp } = useContext(UserContext);
+  const { logout, user, uploadImage, VerifyMobile, verifyMobileOtp } =
+  useContext(UserContext);
+  const [balance, setBalance] = useState(user.amount);
   const navigate = useNavigate();
 
-
-  const redirectToPayment = (url) => {
-    const anchor = document.createElement('a');
-    anchor.href = url;
-    anchor.target = '_blank';
-    anchor.rel = 'noopener noreferrer';
-    anchor.click();
+  const checkOut = (ID) => {
+    cashfree.checkout({
+      paymentSessionId: ID,
+      redirectTarget: `/payment/orders/${ID}`,
+    });
   };
+
   const handlePaymentRequest = async (amount) => {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('Please login again');
-      }
-      const response = await fetch(`${BACKEND_URL}/payment/start`, {
-        method: 'POST',
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("Please login again");
+      toast.success("Redirecting to payment...");
+  
+      const orderRes = await fetch(`${BACKEND_URL}/payment/create-order`, {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          amount: amount
-        })
+        body: JSON.stringify({ amount }),
       });
-      const data = await response.json();
-      if (response.ok) {
-        toast.success('Payment initiated successfully');
-        setAddAmount("");
-        setShowAddMoney(false);
-      } else {
-        toast.error(data.message || 'Payment initiation failed');
-        throw new Error(data.message || 'Payment initiation failed');
+    
+  
+      if (!orderRes.ok) {
+        const errorData = await orderRes.json();
+        throw new Error(errorData.message || "Payment request failed");
       }
-      if (data.response && data.response.redirectUrl) {
-        redirectToPayment(data.response.redirectUrl)
-        navigate(`/payment/status/${response.userData?.transactionId}`)
-        return
-      } else {
-        throw new Error('Payment URL not found in response');
-      }
+  
+      const data = await orderRes.json();
+      const sessionId = data.orderDetails.paymentSessionId;
+      console.log(data.orderDetails.orderId)
+      checkOut(sessionId);
     } catch (error) {
-      toast.error(error.message || 'Failed to start payment');
-      throw error;
+      toast.error(error.message || "Payment failed");
     }
   };
-
   // Authentication Handlers
   const handleLogout = () => {
     setIsLoggingOut(true);
     logout();
     navigate("/login");
   };
-
 
   // Navigation Handlers
   const handleMenuClick = (menuItem) => {
@@ -229,19 +236,13 @@ export default function ProfilePage() {
     }
   };
 
-  const handleNavigateAdmin = async () => {
-    const isAdmin = await isUserAdmin()
-    if (data.status == 200) {
-      navigate("/admin/dashboard");
-    } else {
-      toast.error(data.message || "Failed to navigate to admin dashboard");
-    }
-  }
-
   return (
     <div className="min-h-screen realtive text-white">
       {/* Profile Header Section */}
-      <div className="absolute top-2 right-2 z-100" onClick={handleCloseProfile}>
+      <div
+        className="absolute top-2 right-2 z-100"
+        onClick={handleCloseProfile}
+      >
         <CancelIcon />
       </div>
       <img
@@ -376,10 +377,10 @@ export default function ProfilePage() {
                     setAddAmount("");
                     setShowAddMoney(false);
                   } catch (error) {
-                    console.error('Payment error:', error);
+                    console.error("Payment error:", error);
                   }
                 } else {
-                  toast.error('Please enter a valid amount');
+                  toast.error("Please enter a valid amount");
                 }
               }}
             >
@@ -422,8 +423,8 @@ export default function ProfilePage() {
       <div className="p-4">
         <div className="bg-[#1671CC] rounded-lg p-4 flex justify-between items-center">
           <div>
-            <p className="text-xs opacity-80">BALANCE</p>
-            <p className="text-2xl font-bold">₹ {balance.toFixed(2)}</p>
+            <p className="text-xs opacity-80">Wallet Balance</p>
+            <p className="text-2xl font-bold">₹ {balance}</p>
           </div>
           <div className="flex gap-2">
             <button
@@ -468,7 +469,9 @@ export default function ProfilePage() {
         {isLoggingOut && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-lg p-6 w-full max-w-md text-gray-800">
-              <h3 className="font-bold text-lg mb-4">Do you really want to logout?</h3>
+              <h3 className="font-bold text-lg mb-4">
+                Do you really want to logout?
+              </h3>
               <div className="flex justify-end gap-2">
                 <button
                   type="button"
@@ -511,7 +514,7 @@ export default function ProfilePage() {
               icon={<UserLock size={18} />}
               text="Admin Dashboard"
               isLast={true}
-              onClick={handleNavigateAdmin}
+              // onClick={handleNavigateAdmin}
             />
             <MenuItem
               icon={<LogOut size={18} />}
