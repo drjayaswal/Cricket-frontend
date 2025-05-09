@@ -138,7 +138,7 @@ const BettingInterface = () => {
       threes: batsman.threes || 0,
       boundaries: batsman.boundaries || 0,
       average: batsman.avg || "0.00",
-      progress: Math.min(100, (batsman.runs / (batsman.balls || 1)) * 100),
+      progress: initialPrice,
       strikeRate: batsman.strikeRate || "0.00",
       status: batsman.outDesc || "Not Out",
       isCaptain: batsman.isCaptain,
@@ -206,8 +206,8 @@ const BettingInterface = () => {
         </div>
 
         <div className="mt-8">
-          <h2 className="text-xl font-bold mb-4">
-            Current Batting: {currentInnings?.batTeamName}
+          <h2 className="text-4xl font-bold mb-4">
+            {currentInnings?.batTeamName}
           </h2>
           {players?.length > 0 || matchData?.matchScore ? (
             <div className="space-y-4">
@@ -224,7 +224,7 @@ const BettingInterface = () => {
             <div className="space-y-4">
               {[1, 2, 3, 4, 5].map((dummy) => (
                 <div
-                  className="bg-gray-900 rounded-lg p-4 cursor-pointer"
+                  className="bg-[#001D4F] rounded-lg p-4 cursor-pointer"
                   key={dummy}
                 >
                   <div className="flex items-center justify-between mb-2">
