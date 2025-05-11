@@ -384,7 +384,7 @@ export const UserProvider = ({ children }) => {
 
     try {
       const token = localStorage.getItem("token"); // Get user token
-      const response = await fetch(`${BACKEND_URL}/api/upload-profile`, {
+      const response = await fetch(`${BACKEND_URL}/upload/upload-profile`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`, // Send token for authentication

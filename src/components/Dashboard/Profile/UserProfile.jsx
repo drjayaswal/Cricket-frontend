@@ -56,7 +56,7 @@ export default function ProfilePage() {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("Please login again");
       toast.success("Redirecting to payment...");
-  
+      
       const orderRes = await fetch(`${BACKEND_URL}/payment/create-order`, {
         method: "POST",
         headers: {
@@ -65,7 +65,7 @@ export default function ProfilePage() {
         },
         body: JSON.stringify({ amount }),
       });
-    
+      
   
       if (!orderRes.ok) {
         const errorData = await orderRes.json();

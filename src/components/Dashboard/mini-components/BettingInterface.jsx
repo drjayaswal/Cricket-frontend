@@ -179,7 +179,8 @@ const BettingInterface = () => {
           <h1 className="text-center text-xl md:text-2xl font-bold mt-6">
             {currentMatch.team1} vs {currentMatch.team2}
           </h1>
-          <p className="text-center text-gray-400 mt-2">Current Innings:
+          <p className="text-center text-gray-400 mt-2">
+            Current Innings:
             {currentInnings ? (
               <>
                 {currentInnings.batTeamName} - {currentInnings.score}/
@@ -213,7 +214,7 @@ const BettingInterface = () => {
             <div className="space-y-4">
               {players.map((player, index) => (
                 <PlayerCard
-                  key={player.id || index}
+                  key={index}
                   player={player}
                   index={index}
                   matchId={scoreData?.matchId || currentMatch.matchId}

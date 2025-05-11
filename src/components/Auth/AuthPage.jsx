@@ -269,7 +269,7 @@ const AuthPage = () => {
   };
 
   return (
-    <div className="min-h-screen max-w-[40rem] mx-auto py-20 flex flex-col gap-10 items-center justify-between bg-[#122641] px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen max-w-[40rem] mx-auto py-20 flex flex-col gap-10 items-center justify-between px-4 sm:px-6 lg:px-8">
 
       <div className="space-y-4 w-full">
         <p className="text-center font-[Teko] tracking-wider text-2xl font-bold text-blue-400">
